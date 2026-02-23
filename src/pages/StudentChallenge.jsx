@@ -1,10 +1,17 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import useChallenges from '../hooks/useChallenges'
+import useDebounce from '../hooks/useDebounce'
 import CodeEditor from '../components/CodeEditor'
 import MarkdownRenderer from '../components/MarkdownRenderer'
 import ConsoleOutput from '../components/ConsoleOutput'
+import PreviewFrame from '../components/PreviewFrame'
 import { executeChallenge } from '../engine/executor'
+
+// Languages that get a Preview tab
+const PREVIEWABLE = ['javascript', 'html', 'css']
+
+const TABS = ['code', 'results', 'preview']
 
 export default function StudentChallenge() {
   const { id } = useParams()
@@ -15,6 +22,10 @@ export default function StudentChallenge() {
   const [activeTab, setActiveTab] = useState('code')
   const [result, setResult] = useState(null)
   const [running, setRunning] = useState(false)
+
+  // Debounced code is what PreviewFrame actually renders
+  const debouncedCode = useDebounce(code, 650)
+  const isPreviewStale = code !== debouncedCode
 
   useEffect(() => {
     const c = getChallengeById(id)
@@ -36,10 +47,14 @@ export default function StudentChallenge() {
     )
   }
 
+  const hasPreview = PREVIEWABLE.includes(challenge.language?.toLowerCase())
+
+  const visibleTabs = hasPreview ? TABS : TABS.filter(t => t !== 'preview')
+
+
   const handleSubmit = () => {
     setRunning(true)
-    setActiveTab('console')
-    // Defer execution one tick so the tab switch renders first
+    setActiveTab('results')
     setTimeout(() => {
       const output = executeChallenge(code, challenge.tests)
       setResult(output)
@@ -55,10 +70,9 @@ export default function StudentChallenge() {
   }
 
   return (
-    // Full-height layout — escape the Layout's padding via negative margins
     <div className="flex flex-col -mt-8 -mx-4 sm:-mx-6 lg:-mx-8" style={{ height: 'calc(100vh - 4rem)' }}>
 
-      {/* ── Breadcrumb bar ─────────────────────────────────── */}
+      {/* ── Breadcrumb ─────────────────────────────────────── */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-3 flex-shrink-0">
         <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
           <Link to="/" className="hover:text-gray-700 dark:hover:text-gray-200">Challenges</Link>
@@ -67,10 +81,10 @@ export default function StudentChallenge() {
         </div>
       </div>
 
-      {/* ── Main split layout ──────────────────────────────── */}
+      {/* ── Main split ─────────────────────────────────────── */}
       <div className="flex flex-1 overflow-hidden">
 
-        {/* Left: description panel */}
+        {/* Left: description */}
         <aside className="w-2/5 min-w-[280px] max-w-[520px] flex-shrink-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-y-auto">
           <div className="p-6">
             <div className="flex items-start gap-3 mb-4">
@@ -106,12 +120,12 @@ export default function StudentChallenge() {
           </div>
         </aside>
 
-        {/* Right: editor + console */}
+        {/* Right: tabs */}
         <div className="flex-1 flex flex-col overflow-hidden bg-gray-50 dark:bg-gray-900 min-w-0">
 
           {/* Tab bar */}
           <div className="flex border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0">
-            {['code', 'console'].map(tab => (
+            {visibleTabs.map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -122,27 +136,37 @@ export default function StudentChallenge() {
                 }`}
               >
                 {tab}
-                {tab === 'console' && result && (
-                  <span
-                    className={`absolute top-2.5 right-2 w-2 h-2 rounded-full ${
-                      result.success ? 'bg-green-500' : 'bg-red-500'
-                    }`}
-                  />
+
+                {/* Results dot */}
+                {tab === 'results' && result && (
+                  <span className={`absolute top-2.5 right-2 w-2 h-2 rounded-full ${result.success ? 'bg-green-500' : 'bg-red-500'}`} />
+                )}
+
+                {/* Preview stale dot */}
+                {tab === 'preview' && activeTab !== 'preview' && isPreviewStale && (
+                  <span className="absolute top-2.5 right-2 w-2 h-2 rounded-full bg-amber-400" />
                 )}
               </button>
             ))}
           </div>
 
-          {/* Tab content */}
-          <div className="flex-1 overflow-auto">
-            {activeTab === 'code' ? (
+          {/* Tab content
+              The code editor and preview iframe are kept mounted (hidden via CSS)
+              so they don't lose state or reload when switching tabs. */}
+          <div className="flex-1 relative overflow-hidden">
+
+            {/* Code tab */}
+            <div className={`absolute inset-0 ${activeTab === 'code' ? 'block' : 'hidden'}`}>
               <CodeEditor
                 value={code}
                 onChange={setCode}
                 height="100%"
               />
-            ) : (
-              running ? (
+            </div>
+
+            {/* Results tab */}
+            <div className={`absolute inset-0 overflow-auto ${activeTab === 'results' ? 'block' : 'hidden'}`}>
+              {running ? (
                 <div className="h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
                   <p className="text-sm animate-pulse">Running tests…</p>
                 </div>
@@ -152,18 +176,40 @@ export default function StudentChallenge() {
                   error={result?.error}
                   success={result?.success}
                 />
-              )
+              )}
+            </div>
+
+            {/* Preview tab — only rendered for supported languages */}
+            {hasPreview && (
+              <div className={`absolute inset-0 ${activeTab === 'preview' ? 'block' : 'hidden'}`}>
+                <PreviewFrame
+                  code={debouncedCode}
+                  language={challenge.language}
+                  fixtureHtml={challenge.fixtureHtml}
+                  isStale={isPreviewStale}
+                />
+              </div>
             )}
           </div>
 
           {/* Action bar */}
           <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between flex-shrink-0">
-            <button
-              onClick={handleReset}
-              className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              Reset Code
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleReset}
+                className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                Reset Code
+              </button>
+              {hasPreview && activeTab !== 'preview' && (
+                <button
+                  onClick={() => setActiveTab('preview')}
+                  className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  Open Preview
+                </button>
+              )}
+            </div>
             <button
               onClick={handleSubmit}
               disabled={running}
