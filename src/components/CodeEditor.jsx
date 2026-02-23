@@ -2,11 +2,13 @@ import { useMemo } from 'react'
 import CodeMirror from '@uiw/react-codemirror'
 import { javascript } from '@codemirror/lang-javascript'
 import { html } from '@codemirror/lang-html'
+import { css } from '@codemirror/lang-css'
 import { useTheme } from '../context/ThemeContext'
 
 function getExtensions(language) {
   switch (language?.toLowerCase()) {
     case 'html': return [html()]
+    case 'css':  return [css()]
     case 'javascript':
     default:     return [javascript({ jsx: false })]
   }

@@ -1,5 +1,98 @@
 export const sampleChallenges = [
   {
+    id: 'sample-css-flexbox',
+    title: 'Center Content with Flexbox',
+    language: 'css',
+    fixtureHtml: `<div class="wrapper">
+  <div class="card">I'm centered!</div>
+</div>`,
+    description: `## Center Content with Flexbox
+
+Use CSS Flexbox to center a card both **horizontally** and **vertically** inside its wrapper.
+
+### The HTML structure (provided for you)
+
+\`\`\`html
+<div class="wrapper">
+  <div class="card">I'm centered!</div>
+</div>
+\`\`\`
+
+### Requirements
+
+1. \`.wrapper\` must use **Flexbox** as its display mode
+2. Content must be centered **horizontally** (\`justify-content\`)
+3. Content must be centered **vertically** (\`align-items\`)
+4. \`.wrapper\` must have a \`min-height\` of at least **200px** so vertical centering is visible
+5. \`.card\` must have a \`border-radius\` greater than 0 (rounded corners)
+
+### Tips
+
+- \`display: flex\` on the wrapper enables Flexbox
+- \`justify-content: center\` centers children on the **main axis** (horizontal by default)
+- \`align-items: center\` centers children on the **cross axis** (vertical by default)
+- Computed colors are always in \`rgb()\` format — \`color: red\` computes to \`rgb(255, 0, 0)\`
+`,
+    starterCode: `/* Style the wrapper to center its child */
+.wrapper {
+
+}
+
+/* Style the card however you like */
+.card {
+
+}
+`,
+    tests: [
+      {
+        id: 'sample-css-flex-t1',
+        description: '.wrapper uses display: flex',
+        assertion: `
+          const wrapper = container.querySelector('.wrapper');
+          return getComputedStyle(wrapper).display === 'flex';
+        `,
+        failureMessage: 'Set display: flex on .wrapper to enable Flexbox.',
+      },
+      {
+        id: 'sample-css-flex-t2',
+        description: '.wrapper centers content horizontally (justify-content: center)',
+        assertion: `
+          const wrapper = container.querySelector('.wrapper');
+          return getComputedStyle(wrapper).justifyContent === 'center';
+        `,
+        failureMessage: 'Add justify-content: center to .wrapper to center horizontally.',
+      },
+      {
+        id: 'sample-css-flex-t3',
+        description: '.wrapper centers content vertically (align-items: center)',
+        assertion: `
+          const wrapper = container.querySelector('.wrapper');
+          return getComputedStyle(wrapper).alignItems === 'center';
+        `,
+        failureMessage: 'Add align-items: center to .wrapper to center vertically.',
+      },
+      {
+        id: 'sample-css-flex-t4',
+        description: '.wrapper has a min-height of at least 200px',
+        assertion: `
+          const wrapper = container.querySelector('.wrapper');
+          return parseInt(getComputedStyle(wrapper).minHeight) >= 200;
+        `,
+        failureMessage: 'Give .wrapper a min-height of at least 200px so vertical centering is visible.',
+      },
+      {
+        id: 'sample-css-flex-t5',
+        description: '.card has rounded corners (border-radius > 0)',
+        assertion: `
+          const card = container.querySelector('.card');
+          const br = getComputedStyle(card).borderRadius;
+          return br !== '0px' && br !== '0';
+        `,
+        failureMessage: 'Add a border-radius greater than 0 to .card to give it rounded corners.',
+      },
+    ],
+  },
+  {
     id: 'sample-html-nav',
     title: 'Build a Navigation Bar',
     language: 'html',

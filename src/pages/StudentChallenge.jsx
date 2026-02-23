@@ -56,7 +56,7 @@ export default function StudentChallenge() {
     setRunning(true)
     setActiveTab('results')
     setTimeout(() => {
-      const output = executeChallenge(challenge.language, code, challenge.tests)
+      const output = executeChallenge(challenge.language, code, challenge.tests, { fixtureHtml: challenge.fixtureHtml })
       setResult(output)
       setRunning(false)
     }, 50)
