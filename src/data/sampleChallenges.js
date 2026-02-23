@@ -1,5 +1,280 @@
 export const sampleChallenges = [
   {
+    id: 'sample-css-flexbox',
+    title: 'Center Content with Flexbox',
+    language: 'css',
+    fixtureHtml: `<div class="wrapper">
+  <div class="card">I'm centered!</div>
+</div>`,
+    description: `## Center Content with Flexbox
+
+Use CSS Flexbox to center a card both **horizontally** and **vertically** inside its wrapper.
+
+### The HTML structure (provided for you)
+
+\`\`\`html
+<div class="wrapper">
+  <div class="card">I'm centered!</div>
+</div>
+\`\`\`
+
+### Requirements
+
+1. \`.wrapper\` must use **Flexbox** as its display mode
+2. Content must be centered **horizontally** (\`justify-content\`)
+3. Content must be centered **vertically** (\`align-items\`)
+4. \`.wrapper\` must have a \`min-height\` of at least **200px** so vertical centering is visible
+5. \`.card\` must have a \`border-radius\` greater than 0 (rounded corners)
+
+### Tips
+
+- \`display: flex\` on the wrapper enables Flexbox
+- \`justify-content: center\` centers children on the **main axis** (horizontal by default)
+- \`align-items: center\` centers children on the **cross axis** (vertical by default)
+- Computed colors are always in \`rgb()\` format — \`color: red\` computes to \`rgb(255, 0, 0)\`
+`,
+    starterCode: `/* Style the wrapper to center its child */
+.wrapper {
+
+}
+
+/* Style the card however you like */
+.card {
+
+}
+`,
+    tests: [
+      {
+        id: 'sample-css-flex-t1',
+        description: '.wrapper uses display: flex',
+        assertion: `
+          const wrapper = container.querySelector('.wrapper');
+          return getComputedStyle(wrapper).display === 'flex';
+        `,
+        failureMessage: 'Set display: flex on .wrapper to enable Flexbox.',
+      },
+      {
+        id: 'sample-css-flex-t2',
+        description: '.wrapper centers content horizontally (justify-content: center)',
+        assertion: `
+          const wrapper = container.querySelector('.wrapper');
+          return getComputedStyle(wrapper).justifyContent === 'center';
+        `,
+        failureMessage: 'Add justify-content: center to .wrapper to center horizontally.',
+      },
+      {
+        id: 'sample-css-flex-t3',
+        description: '.wrapper centers content vertically (align-items: center)',
+        assertion: `
+          const wrapper = container.querySelector('.wrapper');
+          return getComputedStyle(wrapper).alignItems === 'center';
+        `,
+        failureMessage: 'Add align-items: center to .wrapper to center vertically.',
+      },
+      {
+        id: 'sample-css-flex-t4',
+        description: '.wrapper has a min-height of at least 200px',
+        assertion: `
+          const wrapper = container.querySelector('.wrapper');
+          return parseInt(getComputedStyle(wrapper).minHeight) >= 200;
+        `,
+        failureMessage: 'Give .wrapper a min-height of at least 200px so vertical centering is visible.',
+      },
+      {
+        id: 'sample-css-flex-t5',
+        description: '.card has rounded corners (border-radius > 0)',
+        assertion: `
+          const card = container.querySelector('.card');
+          const br = getComputedStyle(card).borderRadius;
+          return br !== '0px' && br !== '0';
+        `,
+        failureMessage: 'Add a border-radius greater than 0 to .card to give it rounded corners.',
+      },
+    ],
+  },
+  {
+    id: 'sample-css-button',
+    title: 'Style a Button',
+    language: 'css',
+    fixtureHtml: `<button class="btn">Click Me</button>`,
+    description: `## Style a Button
+
+Turn a plain browser button into a polished, clickable UI element using CSS.
+
+### The HTML structure (provided for you)
+
+\`\`\`html
+<button class="btn">Click Me</button>
+\`\`\`
+
+### Requirements
+
+1. \`.btn\` must have a **colored background** (not transparent)
+2. The button **text must be white** (\`color: white\`)
+3. \`.btn\` must have **rounded corners** (\`border-radius\` greater than 0)
+4. The cursor must change to a **pointer** on hover (\`cursor: pointer\`)
+5. \`.btn\` must have **vertical padding** of at least \`8px\` top and bottom
+
+### Tips
+
+- \`background-color\` sets the fill — pick any colour you like
+- \`color: white\` sets the text colour
+- \`border-radius: 6px\` (or more) gives rounded corners
+- \`cursor: pointer\` signals the element is clickable
+- \`padding: 8px 16px\` adds breathing room inside the button
+`,
+    starterCode: `/* Style the button */
+.btn {
+
+}
+`,
+    tests: [
+      {
+        id: 'sample-css-btn-t1',
+        description: '.btn has a colored background (not transparent)',
+        assertion: `
+          const bg = getComputedStyle(container.querySelector('.btn')).backgroundColor;
+          return bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent';
+        `,
+        failureMessage: 'Add a background-color to .btn — any colour works.',
+      },
+      {
+        id: 'sample-css-btn-t2',
+        description: '.btn text is white (color: white)',
+        assertion: `
+          return getComputedStyle(container.querySelector('.btn')).color === 'rgb(255, 255, 255)';
+        `,
+        failureMessage: 'Set color: white on .btn so the text is readable.',
+      },
+      {
+        id: 'sample-css-btn-t3',
+        description: '.btn has rounded corners (border-radius > 0)',
+        assertion: `
+          const br = getComputedStyle(container.querySelector('.btn')).borderRadius;
+          return parseFloat(br) > 0;
+        `,
+        failureMessage: 'Add a border-radius greater than 0 to give .btn rounded corners.',
+      },
+      {
+        id: 'sample-css-btn-t4',
+        description: '.btn has cursor: pointer',
+        assertion: `
+          return getComputedStyle(container.querySelector('.btn')).cursor === 'pointer';
+        `,
+        failureMessage: 'Add cursor: pointer to .btn so it signals it\'s clickable.',
+      },
+      {
+        id: 'sample-css-btn-t5',
+        description: '.btn has at least 8px vertical padding',
+        assertion: `
+          const s = getComputedStyle(container.querySelector('.btn'));
+          return parseFloat(s.paddingTop) >= 8 && parseFloat(s.paddingBottom) >= 8;
+        `,
+        failureMessage: 'Give .btn a padding-top and padding-bottom of at least 8px.',
+      },
+    ],
+  },
+  {
+    id: 'sample-css-card',
+    title: 'Build a Card Component',
+    language: 'css',
+    fixtureHtml: `<div class="card">
+  <h2 class="card-title">Card Title</h2>
+  <p class="card-body">Some card content goes here. Cards are a staple of modern UI design.</p>
+</div>`,
+    description: `## Build a Card Component
+
+Cards are one of the most common UI patterns. Style the provided markup into a clean, elevated card.
+
+### The HTML structure (provided for you)
+
+\`\`\`html
+<div class="card">
+  <h2 class="card-title">Card Title</h2>
+  <p class="card-body">Some card content goes here.</p>
+</div>
+\`\`\`
+
+### Requirements
+
+1. \`.card\` must have a **background color** (not transparent)
+2. \`.card\` must have **rounded corners** (\`border-radius\` greater than 0)
+3. \`.card\` must have a **box shadow** (not \`none\`)
+4. \`.card\` must have **padding of at least 16px** on all sides
+5. \`.card-title\` font size must be **larger** than \`.card-body\` font size
+
+### Tips
+
+- \`background-color: white\` gives the card a clean surface
+- \`box-shadow: 0 2px 8px rgba(0,0,0,0.1)\` is a classic subtle shadow
+- \`font-size\` accepts values like \`px\`, \`rem\`, or \`em\`
+`,
+    starterCode: `/* Style the card container */
+.card {
+
+}
+
+/* Style the title */
+.card-title {
+
+}
+
+/* Style the body text */
+.card-body {
+
+}
+`,
+    tests: [
+      {
+        id: 'sample-css-card-t1',
+        description: '.card has a background color (not transparent)',
+        assertion: `
+          const bg = getComputedStyle(container.querySelector('.card')).backgroundColor;
+          return bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent';
+        `,
+        failureMessage: 'Add a background-color to .card.',
+      },
+      {
+        id: 'sample-css-card-t2',
+        description: '.card has rounded corners (border-radius > 0)',
+        assertion: `
+          return parseFloat(getComputedStyle(container.querySelector('.card')).borderRadius) > 0;
+        `,
+        failureMessage: 'Add a border-radius greater than 0 to .card.',
+      },
+      {
+        id: 'sample-css-card-t3',
+        description: '.card has a box-shadow',
+        assertion: `
+          return getComputedStyle(container.querySelector('.card')).boxShadow !== 'none';
+        `,
+        failureMessage: 'Add a box-shadow to .card to give it depth.',
+      },
+      {
+        id: 'sample-css-card-t4',
+        description: '.card has at least 16px padding on all sides',
+        assertion: `
+          const s = getComputedStyle(container.querySelector('.card'));
+          return parseFloat(s.paddingTop) >= 16
+            && parseFloat(s.paddingRight) >= 16
+            && parseFloat(s.paddingBottom) >= 16
+            && parseFloat(s.paddingLeft) >= 16;
+        `,
+        failureMessage: 'Give .card a padding of at least 16px on all sides.',
+      },
+      {
+        id: 'sample-css-card-t5',
+        description: '.card-title font size is larger than .card-body font size',
+        assertion: `
+          const titleSize = parseFloat(getComputedStyle(container.querySelector('.card-title')).fontSize);
+          const bodySize  = parseFloat(getComputedStyle(container.querySelector('.card-body')).fontSize);
+          return titleSize > bodySize;
+        `,
+        failureMessage: 'Make .card-title have a larger font-size than .card-body.',
+      },
+    ],
+  },
+  {
     id: 'sample-html-nav',
     title: 'Build a Navigation Bar',
     language: 'html',
@@ -79,6 +354,176 @@ Feel free to add extra links, styling attributes, or additional content — as l
           return hrefs.includes("#home") && hrefs.includes("#about") && hrefs.includes("#contact");
         `,
         failureMessage: 'Make sure you have links with href="#home", href="#about", and href="#contact".',
+      },
+    ],
+  },
+  {
+    id: 'sample-html-form',
+    title: 'Build a Contact Form',
+    language: 'html',
+    description: `## Build a Contact Form
+
+Create a semantic HTML contact form that collects a user's name, email, and message.
+
+### Requirements
+
+Your HTML must include:
+
+1. A \`<form>\` element wrapping all inputs
+2. An \`<input>\` with \`type="text"\` and \`name="name"\` for the user's name
+3. An \`<input>\` with \`type="email"\` and \`name="email"\` for the email address
+4. A \`<textarea>\` with \`name="message"\` for the message body
+5. A \`<button>\` with \`type="submit"\` to submit the form
+
+### Expected structure
+
+\`\`\`html
+<form>
+  <label for="name">Name</label>
+  <input type="text" id="name" name="name" />
+
+  <label for="email">Email</label>
+  <input type="email" id="email" name="email" />
+
+  <label for="message">Message</label>
+  <textarea id="message" name="message"></textarea>
+
+  <button type="submit">Send</button>
+</form>
+\`\`\`
+
+Feel free to add labels, placeholders, fieldsets, or styling — as long as all required elements are present.
+`,
+    starterCode: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Contact Form</title>
+</head>
+<body>
+
+  <!-- Build your contact form here -->
+
+</body>
+</html>
+`,
+    tests: [
+      {
+        id: 'sample-html-form-t1',
+        description: 'Page contains a <form> element',
+        assertion: 'return document.querySelector("form") !== null;',
+        failureMessage: 'Could not find a <form> element. Wrap your inputs in a <form> tag.',
+      },
+      {
+        id: 'sample-html-form-t2',
+        description: 'Form contains a text input with name="name"',
+        assertion: 'return document.querySelector(\'input[type="text"][name="name"]\') !== null;',
+        failureMessage: 'Add an <input type="text" name="name"> for the user\'s name.',
+      },
+      {
+        id: 'sample-html-form-t3',
+        description: 'Form contains an email input with name="email"',
+        assertion: 'return document.querySelector(\'input[type="email"][name="email"]\') !== null;',
+        failureMessage: 'Add an <input type="email" name="email"> for the email address.',
+      },
+      {
+        id: 'sample-html-form-t4',
+        description: 'Form contains a <textarea> with name="message"',
+        assertion: 'return document.querySelector(\'textarea[name="message"]\') !== null;',
+        failureMessage: 'Add a <textarea name="message"> for the message body.',
+      },
+      {
+        id: 'sample-html-form-t5',
+        description: 'Form contains a submit button',
+        assertion: 'return document.querySelector(\'button[type="submit"]\') !== null || document.querySelector(\'input[type="submit"]\') !== null;',
+        failureMessage: 'Add a <button type="submit"> or <input type="submit"> to allow form submission.',
+      },
+    ],
+  },
+  {
+    id: 'sample-html-article',
+    title: 'Semantic Blog Post',
+    language: 'html',
+    description: `## Semantic Blog Post
+
+Use semantic HTML5 elements to structure a blog post correctly. Semantic HTML improves accessibility and SEO by giving content meaningful structure.
+
+### Requirements
+
+Your HTML must include:
+
+1. An \`<article>\` element as the top-level wrapper for the post
+2. A \`<header>\` inside the article containing an \`<h1>\` with the post title
+3. At least one \`<p>\` (paragraph) of body text inside the article
+4. A \`<footer>\` inside the article (e.g. for author or date info)
+5. A \`<time>\` element somewhere in the document with a \`datetime\` attribute
+
+### Expected structure
+
+\`\`\`html
+<article>
+  <header>
+    <h1>My Blog Post Title</h1>
+  </header>
+
+  <p>Some interesting content goes here...</p>
+
+  <footer>
+    <p>Published by <strong>Author Name</strong> on
+      <time datetime="2025-01-01">January 1, 2025</time>
+    </p>
+  </footer>
+</article>
+\`\`\`
+
+Feel free to add more content, sections, or styling — just keep the required elements in place.
+`,
+    starterCode: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Blog Post</title>
+</head>
+<body>
+
+  <!-- Build your semantic blog post here -->
+
+</body>
+</html>
+`,
+    tests: [
+      {
+        id: 'sample-html-article-t1',
+        description: 'Page contains an <article> element',
+        assertion: 'return document.querySelector("article") !== null;',
+        failureMessage: 'Wrap your blog post in an <article> element.',
+      },
+      {
+        id: 'sample-html-article-t2',
+        description: '<article> contains a <header> with an <h1>',
+        assertion: 'return document.querySelector("article header h1") !== null;',
+        failureMessage: 'Add a <header> inside your <article> that contains an <h1> for the post title.',
+      },
+      {
+        id: 'sample-html-article-t3',
+        description: '<article> contains at least one paragraph',
+        assertion: 'return document.querySelector("article p") !== null;',
+        failureMessage: 'Add at least one <p> paragraph of content inside your <article>.',
+      },
+      {
+        id: 'sample-html-article-t4',
+        description: '<article> contains a <footer>',
+        assertion: 'return document.querySelector("article footer") !== null;',
+        failureMessage: 'Add a <footer> inside your <article> for author or date information.',
+      },
+      {
+        id: 'sample-html-article-t5',
+        description: 'Page contains a <time> element with a datetime attribute',
+        assertion: `
+          const t = document.querySelector('time[datetime]');
+          return t !== null && t.getAttribute('datetime').length > 0;
+        `,
+        failureMessage: 'Add a <time datetime="YYYY-MM-DD"> element to mark when the post was published.',
       },
     ],
   },

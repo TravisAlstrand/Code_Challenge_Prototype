@@ -45,20 +45,62 @@ function executeHtml(code, tests) {
   })
 }
 
+// ─── CSS ───────────────────────────────────────────────────────────────────────
+//
+// Injects the fixture HTML + student CSS into a hidden off-screen container
+// attached to the real document so the browser computes styles properly.
+// Assertions receive `container` (the root element) and `getComputedStyle`.
+// The container is always removed after tests finish.
+
+function executeCss(code, tests, { fixtureHtml = '' } = {}) {
+  const container = document.createElement('div')
+
+  // Off-screen but attached to the DOM so getComputedStyle works correctly.
+  // A fixed width gives layout-dependent properties (flex, grid) a consistent base.
+  container.style.cssText = [
+    'position:absolute',
+    'left:-9999px',
+    'top:0',
+    'width:1280px',
+    'visibility:hidden',
+    'pointer-events:none',
+  ].join(';')
+
+  container.innerHTML = fixtureHtml
+
+  const styleEl = document.createElement('style')
+  styleEl.textContent = code
+  container.appendChild(styleEl)
+
+  document.body.appendChild(container)
+
+  try {
+    return runTests(tests, (assertion) => {
+      const testFn = new Function('container', 'getComputedStyle', assertion)
+      return testFn(container, window.getComputedStyle.bind(window))
+    })
+  } finally {
+    // Always clean up, even if a test throws
+    document.body.removeChild(container)
+  }
+}
+
 // ─── Dispatcher ────────────────────────────────────────────────────────────────
 
 const EXECUTORS = {
   javascript: executeJavaScript,
   html: executeHtml,
+  css: executeCss,
 }
 
 /**
- * @param {string} language  - challenge.language
- * @param {string} code      - student's submitted code
- * @param {Array}  tests     - array of { id, description, assertion, failureMessage }
+ * @param {string} language    - challenge.language
+ * @param {string} code        - student's submitted code
+ * @param {Array}  tests       - array of { id, description, assertion, failureMessage }
+ * @param {Object} options     - extra per-language context (e.g. fixtureHtml for CSS)
  * @returns {{ success: boolean, results: Array, error: string|null }}
  */
-export function executeChallenge(language, code, tests) {
+export function executeChallenge(language, code, tests, options = {}) {
   const executor = EXECUTORS[language?.toLowerCase()]
 
   if (!executor) {
@@ -69,7 +111,7 @@ export function executeChallenge(language, code, tests) {
     }
   }
 
-  return executor(code, tests)
+  return executor(code, tests, options)
 }
 
 // ─── Shared test runner ────────────────────────────────────────────────────────

@@ -24,11 +24,24 @@ exports.solution = solution;
 </body>
 </html>
 `,
+  css: `/* Write your CSS here */
+
+`,
+}
+
+const DEFAULT_FIXTURE_HTML = {
+  css: `<div class="wrapper">
+  <div class="card">
+    <h1>Hello World</h1>
+    <p>Some paragraph text.</p>
+  </div>
+</div>`,
 }
 
 const ASSERTION_HINTS = {
   javascript: 'return exports.myFn(args) === expectedValue;',
   html: 'return document.querySelector("h1")?.textContent?.trim() === "Hello";',
+  css: 'return getComputedStyle(container.querySelector(".my-class")).display === "flex";',
 }
 
 function emptyChallenge() {
@@ -38,6 +51,7 @@ function emptyChallenge() {
     language: 'javascript',
     description: '',
     starterCode: DEFAULT_STARTERS.javascript,
+    fixtureHtml: '',
     tests: [],
   }
 }
@@ -64,15 +78,16 @@ export default function AdminPage() {
     setSaveStatus('idle')
   }
 
-  // When the language changes, swap in the appropriate default starter code
-  // if the current starter code is still one of our defaults (i.e. not customised).
+  // When language changes, swap starter code and fixture HTML if still at defaults
   const handleLanguageChange = (newLang) => {
     setForm(prev => {
-      const isStillDefault = Object.values(DEFAULT_STARTERS).includes(prev.starterCode)
+      const isStarterDefault = Object.values(DEFAULT_STARTERS).includes(prev.starterCode)
+      const isFixtureDefault = !prev.fixtureHtml || Object.values(DEFAULT_FIXTURE_HTML).includes(prev.fixtureHtml)
       return {
         ...prev,
         language: newLang,
-        starterCode: isStillDefault ? (DEFAULT_STARTERS[newLang] ?? prev.starterCode) : prev.starterCode,
+        starterCode: isStarterDefault ? (DEFAULT_STARTERS[newLang] ?? prev.starterCode) : prev.starterCode,
+        fixtureHtml: isFixtureDefault ? (DEFAULT_FIXTURE_HTML[newLang] ?? '') : prev.fixtureHtml,
       }
     })
     setSaveStatus('idle')
@@ -108,10 +123,13 @@ export default function AdminPage() {
 
   const isEditing = Boolean(id || form.id)
   const lang = form.language
+  const isCss = lang === 'css'
 
-  const starterSubtitle = lang === 'html'
-    ? 'Write the HTML the student will start with'
-    : <span>Use <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded text-xs">exports.fnName = fnName</code> to expose functions to tests</span>
+  const starterSubtitle = {
+    javascript: <span>Use <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded text-xs">exports.fnName = fnName</code> to expose functions to tests</span>,
+    html: 'Write the HTML the student will start with',
+    css: 'Write the CSS the student will start with',
+  }[lang] ?? null
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -139,7 +157,7 @@ export default function AdminPage() {
               type="text"
               value={form.title}
               onChange={e => update('title', e.target.value)}
-              placeholder="e.g. Build a Navigation Bar"
+              placeholder="e.g. Center Elements with Flexbox"
               className={inputClass}
             />
           </Field>
@@ -152,6 +170,7 @@ export default function AdminPage() {
             >
               <option value="javascript">JavaScript</option>
               <option value="html">HTML</option>
+              <option value="css">CSS</option>
               <option value="python" disabled>Python (coming soon)</option>
             </select>
           </Field>
@@ -168,6 +187,21 @@ export default function AdminPage() {
           />
         </Section>
 
+        {/* ── Fixture HTML (CSS only) ─────────────────────────── */}
+        {isCss && (
+          <Section
+            title="Fixture HTML"
+            subtitle="The HTML structure the student's CSS will be applied to. Students see this rendered in the Preview tab."
+          >
+            <CodeEditor
+              value={form.fixtureHtml || ''}
+              onChange={val => update('fixtureHtml', val)}
+              height="180px"
+              language="html"
+            />
+          </Section>
+        )}
+
         {/* ── Starter Code ───────────────────────────────────── */}
         <Section title="Starter Code" subtitle={starterSubtitle}>
           <CodeEditor
@@ -181,7 +215,11 @@ export default function AdminPage() {
         {/* ── Tests ──────────────────────────────────────────── */}
         <Section
           title="Tests"
-          subtitle="Tests run sequentially and stop at the first failure"
+          subtitle={
+            isCss
+              ? <span>Assertions receive <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded text-xs">container</code> and <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded text-xs">getComputedStyle</code></span>
+              : 'Tests run sequentially and stop at the first failure'
+          }
           action={
             <button
               onClick={addTest}

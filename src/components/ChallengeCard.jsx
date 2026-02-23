@@ -1,15 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom'
-
-const LANG_BADGES = {
-  javascript: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300',
-  python: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300',
-}
+import { langBadgeClass } from '../utils/langBadge'
 
 export default function ChallengeCard({ challenge, onDelete, onDuplicate }) {
   const navigate = useNavigate()
 
-  const badgeClass = LANG_BADGES[challenge.language?.toLowerCase()] ||
-    'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+  const badgeClass = langBadgeClass(challenge.language)
 
   const handleDelete = (e) => {
     e.stopPropagation()
