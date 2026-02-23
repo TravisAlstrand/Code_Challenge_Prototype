@@ -1,5 +1,88 @@
 export const sampleChallenges = [
   {
+    id: 'sample-html-nav',
+    title: 'Build a Navigation Bar',
+    language: 'html',
+    description: `## Build a Navigation Bar
+
+Create a semantic navigation bar using the correct HTML elements.
+
+### Requirements
+
+Your HTML must include:
+
+1. A \`<nav>\` element as the outer wrapper
+2. Inside it, an unordered list (\`<ul>\`) containing **at least 3** list items (\`<li>\`)
+3. Each \`<li>\` must contain an \`<a>\` (anchor) link
+4. One of the links must point to \`#home\`, one to \`#about\`, and one to \`#contact\`
+
+### Expected structure
+
+\`\`\`html
+<nav>
+  <ul>
+    <li><a href="#home">Home</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+\`\`\`
+
+Feel free to add extra links, styling attributes, or additional content — as long as the above structure is present.
+`,
+    starterCode: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Navigation Bar</title>
+</head>
+<body>
+
+  <!-- Build your navigation bar here -->
+
+</body>
+</html>
+`,
+    tests: [
+      {
+        id: 'sample-html-nav-t1',
+        description: 'Page contains a <nav> element',
+        assertion: 'return document.querySelector("nav") !== null;',
+        failureMessage: 'Could not find a <nav> element. Wrap your navigation in a <nav> tag.',
+      },
+      {
+        id: 'sample-html-nav-t2',
+        description: '<nav> contains an unordered list <ul>',
+        assertion: 'return document.querySelector("nav ul") !== null;',
+        failureMessage: 'Could not find a <ul> inside your <nav>. Use an unordered list to group your links.',
+      },
+      {
+        id: 'sample-html-nav-t3',
+        description: 'Navigation has at least 3 list items',
+        assertion: 'return document.querySelectorAll("nav ul li").length >= 3;',
+        failureMessage: 'Found fewer than 3 <li> items inside your <nav><ul>. Add at least 3 list items.',
+      },
+      {
+        id: 'sample-html-nav-t4',
+        description: 'Each list item contains an <a> link',
+        assertion: `
+          const items = document.querySelectorAll("nav ul li");
+          return [...items].every(li => li.querySelector("a") !== null);
+        `,
+        failureMessage: 'Every <li> must contain an <a> anchor element.',
+      },
+      {
+        id: 'sample-html-nav-t5',
+        description: 'Links include #home, #about, and #contact hrefs',
+        assertion: `
+          const hrefs = [...document.querySelectorAll("nav a")].map(a => a.getAttribute("href"));
+          return hrefs.includes("#home") && hrefs.includes("#about") && hrefs.includes("#contact");
+        `,
+        failureMessage: 'Make sure you have links with href="#home", href="#about", and href="#contact".',
+      },
+    ],
+  },
+  {
     id: 'sample-add',
     title: 'Sum Two Numbers',
     language: 'javascript',

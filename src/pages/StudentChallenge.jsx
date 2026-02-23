@@ -56,7 +56,7 @@ export default function StudentChallenge() {
     setRunning(true)
     setActiveTab('results')
     setTimeout(() => {
-      const output = executeChallenge(code, challenge.tests)
+      const output = executeChallenge(challenge.language, code, challenge.tests)
       setResult(output)
       setRunning(false)
     }, 50)
@@ -161,6 +161,7 @@ export default function StudentChallenge() {
                 value={code}
                 onChange={setCode}
                 height="100%"
+                language={challenge.language}
               />
             </div>
 

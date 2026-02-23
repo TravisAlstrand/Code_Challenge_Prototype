@@ -1,42 +1,89 @@
 /**
  * Challenge execution engine.
  *
- * Isolated from UI so future language runners can be swapped in.
+ * Dispatches to a language-specific executor based on challenge.language.
+ * Each executor returns the same shape:
+ *   { success: boolean, results: Array, error: string|null }
  *
- * Execution model (JavaScript):
- *   1. User code is wrapped in a Function that receives an `exports` object.
- *   2. User code assigns functions to `exports` to expose them to tests.
- *   3. Each test assertion is run as a Function that receives `exports`.
- *   4. Tests run sequentially; execution halts at the first failure.
+ * Adding a new language: implement an executeXxx function below and add it
+ * to the EXECUTORS map.
  */
 
-/**
- * @param {string} code        - The user's submitted code
- * @param {Array}  tests       - Array of { id, description, assertion, failureMessage }
- * @returns {{ success: boolean, results: Array, error: string|null }}
- */
-export function executeChallenge(code, tests) {
+// ─── JavaScript ────────────────────────────────────────────────────────────────
+
+function executeJavaScript(code, tests) {
   const exports = {}
 
-  // Step 1: Execute user code
   try {
     const userFn = new Function('exports', code)
     userFn(exports)
   } catch (err) {
+    return { success: false, results: [], error: `${err.name}: ${err.message}` }
+  }
+
+  return runTests(tests, (assertion) => {
+    const testFn = new Function('exports', assertion)
+    return testFn(exports)
+  })
+}
+
+// ─── HTML ──────────────────────────────────────────────────────────────────────
+
+function executeHtml(code, tests) {
+  let doc
+
+  try {
+    const parser = new DOMParser()
+    doc = parser.parseFromString(code, 'text/html')
+  } catch (err) {
+    return { success: false, results: [], error: `Parse Error: ${err.message}` }
+  }
+
+  return runTests(tests, (assertion) => {
+    const testFn = new Function('document', assertion)
+    return testFn(doc)
+  })
+}
+
+// ─── Dispatcher ────────────────────────────────────────────────────────────────
+
+const EXECUTORS = {
+  javascript: executeJavaScript,
+  html: executeHtml,
+}
+
+/**
+ * @param {string} language  - challenge.language
+ * @param {string} code      - student's submitted code
+ * @param {Array}  tests     - array of { id, description, assertion, failureMessage }
+ * @returns {{ success: boolean, results: Array, error: string|null }}
+ */
+export function executeChallenge(language, code, tests) {
+  const executor = EXECUTORS[language?.toLowerCase()]
+
+  if (!executor) {
     return {
       success: false,
       results: [],
-      error: `${err.name}: ${err.message}`,
+      error: `No executor available for language: "${language}"`,
     }
   }
 
-  // Step 2: Run tests sequentially, stop at first failure
+  return executor(code, tests)
+}
+
+// ─── Shared test runner ────────────────────────────────────────────────────────
+
+/**
+ * Runs tests sequentially, stopping at the first failure.
+ * `runAssertion` is a language-specific callback that evaluates one assertion string.
+ */
+function runTests(tests, runAssertion) {
   const results = []
 
   for (const test of tests) {
     try {
-      const testFn = new Function('exports', test.assertion)
-      const passed = testFn(exports)
+      const passed = runAssertion(test.assertion)
 
       if (!passed) {
         results.push({
@@ -45,16 +92,10 @@ export function executeChallenge(code, tests) {
           passed: false,
           message: test.failureMessage || 'Test returned false',
         })
-        // Stop at first failure
         return { success: false, results, error: null }
       }
 
-      results.push({
-        id: test.id,
-        description: test.description,
-        passed: true,
-        message: null,
-      })
+      results.push({ id: test.id, description: test.description, passed: true, message: null })
     } catch (err) {
       results.push({
         id: test.id,

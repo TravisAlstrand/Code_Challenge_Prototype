@@ -1,4 +1,4 @@
-export default function TestItem({ test, index, onChange, onDelete }) {
+export default function TestItem({ test, index, onChange, onDelete, assertionHint }) {
   const update = (field, value) => onChange({ ...test, [field]: value })
 
   return (
@@ -31,12 +31,12 @@ export default function TestItem({ test, index, onChange, onDelete }) {
       <div>
         <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
           Assertion{' '}
-          <span className="font-normal text-gray-400">(receives <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">exports</code>, must return true/false)</span>
+          <span className="font-normal text-gray-400">(must return true/false)</span>
         </label>
         <textarea
           value={test.assertion}
           onChange={e => update('assertion', e.target.value)}
-          placeholder="return exports.add(1, 2) === 3;"
+          placeholder={assertionHint || 'return true;'}
           rows={2}
           className="w-full px-3 py-2 text-sm font-mono rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-y"
         />

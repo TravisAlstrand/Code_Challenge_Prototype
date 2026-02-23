@@ -5,12 +5,31 @@ import useChallenges from '../hooks/useChallenges'
 import CodeEditor from '../components/CodeEditor'
 import TestItem from '../components/TestItem'
 
-const DEFAULT_STARTER = `function solution(/* params */) {
+const DEFAULT_STARTERS = {
+  javascript: `function solution(/* params */) {
   // Your code here
 }
 
 exports.solution = solution;
-`
+`,
+  html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Page</title>
+</head>
+<body>
+  <!-- Write your HTML here -->
+
+</body>
+</html>
+`,
+}
+
+const ASSERTION_HINTS = {
+  javascript: 'return exports.myFn(args) === expectedValue;',
+  html: 'return document.querySelector("h1")?.textContent?.trim() === "Hello";',
+}
 
 function emptyChallenge() {
   return {
@@ -18,7 +37,7 @@ function emptyChallenge() {
     title: '',
     language: 'javascript',
     description: '',
-    starterCode: DEFAULT_STARTER,
+    starterCode: DEFAULT_STARTERS.javascript,
     tests: [],
   }
 }
@@ -31,7 +50,6 @@ export default function AdminPage() {
   const [form, setForm] = useState(emptyChallenge)
   const [saveStatus, setSaveStatus] = useState('idle') // 'idle' | 'saved'
 
-  // Load existing challenge when editing
   useEffect(() => {
     if (id) {
       const challenge = getChallengeById(id)
@@ -43,6 +61,20 @@ export default function AdminPage() {
 
   const update = (field, value) => {
     setForm(prev => ({ ...prev, [field]: value }))
+    setSaveStatus('idle')
+  }
+
+  // When the language changes, swap in the appropriate default starter code
+  // if the current starter code is still one of our defaults (i.e. not customised).
+  const handleLanguageChange = (newLang) => {
+    setForm(prev => {
+      const isStillDefault = Object.values(DEFAULT_STARTERS).includes(prev.starterCode)
+      return {
+        ...prev,
+        language: newLang,
+        starterCode: isStillDefault ? (DEFAULT_STARTERS[newLang] ?? prev.starterCode) : prev.starterCode,
+      }
+    })
     setSaveStatus('idle')
   }
 
@@ -66,7 +98,6 @@ export default function AdminPage() {
 
     const saved = saveChallenge(form)
 
-    // For new challenges: update local form with new id and update URL silently
     if (!form.id) {
       setForm(prev => ({ ...prev, id: saved.id }))
       window.history.replaceState(null, '', `/admin/${saved.id}`)
@@ -76,6 +107,11 @@ export default function AdminPage() {
   }
 
   const isEditing = Boolean(id || form.id)
+  const lang = form.language
+
+  const starterSubtitle = lang === 'html'
+    ? 'Write the HTML the student will start with'
+    : <span>Use <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded text-xs">exports.fnName = fnName</code> to expose functions to tests</span>
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -103,7 +139,7 @@ export default function AdminPage() {
               type="text"
               value={form.title}
               onChange={e => update('title', e.target.value)}
-              placeholder="e.g. Sum Two Numbers"
+              placeholder="e.g. Build a Navigation Bar"
               className={inputClass}
             />
           </Field>
@@ -111,10 +147,11 @@ export default function AdminPage() {
           <Field label="Language">
             <select
               value={form.language}
-              onChange={e => update('language', e.target.value)}
+              onChange={e => handleLanguageChange(e.target.value)}
               className={`${inputClass} w-auto`}
             >
               <option value="javascript">JavaScript</option>
+              <option value="html">HTML</option>
               <option value="python" disabled>Python (coming soon)</option>
             </select>
           </Field>
@@ -125,25 +162,19 @@ export default function AdminPage() {
           <textarea
             value={form.description}
             onChange={e => update('description', e.target.value)}
-            placeholder={`## Challenge Title\n\nDescribe what the student needs to implement.\n\n### Examples\n\n\`\`\`js\nadd(1, 2) // → 3\n\`\`\``}
+            placeholder={`## Challenge Title\n\nDescribe what the student needs to implement.`}
             rows={10}
             className={`${inputClass} font-mono text-sm resize-y`}
           />
         </Section>
 
         {/* ── Starter Code ───────────────────────────────────── */}
-        <Section
-          title="Starter Code"
-          subtitle={
-            <span>
-              Use <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded text-xs">exports.fnName = fnName</code> to expose functions to tests
-            </span>
-          }
-        >
+        <Section title="Starter Code" subtitle={starterSubtitle}>
           <CodeEditor
             value={form.starterCode}
             onChange={val => update('starterCode', val)}
             height="220px"
+            language={lang}
           />
         </Section>
 
@@ -176,6 +207,7 @@ export default function AdminPage() {
                   index={i}
                   onChange={updated => updateTest(i, updated)}
                   onDelete={() => deleteTest(i)}
+                  assertionHint={ASSERTION_HINTS[lang]}
                 />
               ))}
             </div>
