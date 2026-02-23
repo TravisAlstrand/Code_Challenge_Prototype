@@ -7,6 +7,7 @@ import MarkdownRenderer from '../components/MarkdownRenderer'
 import ConsoleOutput from '../components/ConsoleOutput'
 import PreviewFrame from '../components/PreviewFrame'
 import { executeChallenge } from '../engine/executor'
+import { langBadgeClass } from '../utils/langBadge'
 
 // Languages that get a Preview tab
 const PREVIEWABLE = ['javascript', 'html', 'css']
@@ -92,7 +93,7 @@ export default function StudentChallenge() {
                 <h1 className="text-xl font-bold text-gray-900 dark:text-white leading-snug">
                   {challenge.title}
                 </h1>
-                <span className="inline-block mt-1 text-xs bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300 px-2 py-0.5 rounded-full font-medium">
+                <span className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-full font-medium ${langBadgeClass(challenge.language)}`}>
                   {challenge.language}
                 </span>
               </div>
