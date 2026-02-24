@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 import useChallenges from '../hooks/useChallenges'
 import CodeEditor from '../components/CodeEditor'
@@ -29,11 +29,13 @@ function emptyChallenge() {
 
 export default function AdminPage() {
   const { id } = useParams()
-  const navigate = useNavigate()
   const { getChallengeById, saveChallenge } = useChallenges()
 
   const [form, setForm] = useState(emptyChallenge)
   const [saveStatus, setSaveStatus] = useState('idle') // 'idle' | 'saved'
+  const [activeStepIndex, setActiveStepIndex] = useState(0)
+
+  const isMulti = Array.isArray(form.steps) && form.steps.length > 0
 
   useEffect(() => {
     if (id) {
@@ -42,6 +44,7 @@ export default function AdminPage() {
     } else {
       setForm(emptyChallenge())
     }
+    setActiveStepIndex(0)
   }, [id])
 
   const update = (field, value) => {
@@ -49,8 +52,12 @@ export default function AdminPage() {
     setSaveStatus('idle')
   }
 
-  // When language changes, swap files if still at defaults
+  // When language changes, swap files if still at defaults (single-step only)
   const handleLanguageChange = (newLang) => {
+    if (isMulti) {
+      update('language', newLang)
+      return
+    }
     setForm(prev => {
       const isDefault = prev.files.length === 1
         && DEFAULT_FILE_CODE[prev.language] === prev.files[0].code
@@ -63,15 +70,114 @@ export default function AdminPage() {
     setSaveStatus('idle')
   }
 
-  // ── File management ─────────────────────────────────────
+  // ── Step management ──────────────────────────────────────────────
+
+  const updateStep = (stepIndex, field, value) => {
+    setForm(prev => ({
+      ...prev,
+      steps: prev.steps.map((s, i) => i === stepIndex ? { ...s, [field]: value } : s),
+    }))
+    setSaveStatus('idle')
+  }
+
+  const addStep = () => {
+    const newStep = {
+      id: uuidv4(),
+      title: `Step ${form.steps.length + 1}`,
+      description: '',
+      language: form.language,
+      files: [],
+      tests: [],
+    }
+    setForm(prev => ({ ...prev, steps: [...prev.steps, newStep] }))
+    setActiveStepIndex(form.steps.length)
+    setSaveStatus('idle')
+  }
+
+  const removeStep = (index) => {
+    if (form.steps.length <= 1) {
+      alert('A multi-step challenge must have at least 1 step. Use "Convert to Single-Step" to remove steps.')
+      return
+    }
+    setForm(prev => ({ ...prev, steps: prev.steps.filter((_, i) => i !== index) }))
+    setActiveStepIndex(prev => Math.min(prev, form.steps.length - 2))
+    setSaveStatus('idle')
+  }
+
+  const moveStep = (index, direction) => {
+    const target = index + direction
+    if (target < 0 || target >= form.steps.length) return
+    setForm(prev => {
+      const steps = [...prev.steps]
+      ;[steps[index], steps[target]] = [steps[target], steps[index]]
+      return { ...prev, steps }
+    })
+    setActiveStepIndex(target)
+    setSaveStatus('idle')
+  }
+
+  const convertToMultiStep = () => {
+    setForm(prev => ({
+      ...prev,
+      steps: [{
+        id: uuidv4(),
+        title: 'Step 1',
+        description: '',
+        language: prev.language,
+        files: prev.files || [],
+        tests: prev.tests || [],
+      }],
+      files: undefined,
+      tests: undefined,
+    }))
+    setActiveStepIndex(0)
+    setSaveStatus('idle')
+  }
+
+  const convertToSingleStep = () => {
+    if (form.steps.length !== 1) {
+      alert('Can only convert to single-step when there is exactly 1 step.')
+      return
+    }
+    const step = form.steps[0]
+    setForm(prev => ({
+      ...prev,
+      files: step.files.length > 0 ? step.files : [createDefaultFile(prev.language)],
+      tests: step.tests || [],
+      steps: undefined,
+    }))
+    setSaveStatus('idle')
+  }
+
+  // ── File/test operations (scoped to current step or top-level) ──
+
+  const currentFiles = isMulti ? (form.steps[activeStepIndex]?.files || []) : (form.files || [])
+  const currentTests = isMulti ? (form.steps[activeStepIndex]?.tests || []) : (form.tests || [])
+  const currentLang = isMulti ? (form.steps[activeStepIndex]?.language || form.language) : form.language
+
+  const setCurrentFiles = (newFiles) => {
+    if (isMulti) {
+      updateStep(activeStepIndex, 'files', newFiles)
+    } else {
+      update('files', newFiles)
+    }
+  }
+
+  const setCurrentTests = (newTests) => {
+    if (isMulti) {
+      updateStep(activeStepIndex, 'tests', newTests)
+    } else {
+      update('tests', newTests)
+    }
+  }
+
   const addFile = (fileLanguage) => {
-    if (form.files.length >= MAX_FILES) {
-      alert(`Maximum ${MAX_FILES} files per challenge.`)
+    if (currentFiles.length >= MAX_FILES) {
+      alert(`Maximum ${MAX_FILES} files per ${isMulti ? 'step' : 'challenge'}.`)
       return
     }
     const newFile = createDefaultFile(fileLanguage)
-    // Avoid name collisions
-    const existingNames = new Set(form.files.map(f => f.name))
+    const existingNames = new Set(currentFiles.map(f => f.name))
     if (existingNames.has(newFile.name)) {
       let counter = 2
       const dot = newFile.name.lastIndexOf('.')
@@ -80,47 +186,70 @@ export default function AdminPage() {
       while (existingNames.has(`${base} (${counter})${ext}`)) counter++
       newFile.name = `${base} (${counter})${ext}`
     }
-    update('files', [...form.files, newFile])
+    setCurrentFiles([...currentFiles, newFile])
   }
 
   const updateFile = (index, field, value) => {
-    update('files', form.files.map((f, i) => i === index ? { ...f, [field]: value } : f))
+    setCurrentFiles(currentFiles.map((f, i) => i === index ? { ...f, [field]: value } : f))
   }
 
   const deleteFile = (index) => {
-    if (form.files.length <= 1) {
-      alert('Challenge must have at least one file.')
+    if (currentFiles.length <= 1) {
+      alert(`${isMulti ? 'Step' : 'Challenge'} must have at least one file.`)
       return
     }
-    update('files', form.files.filter((_, i) => i !== index))
+    setCurrentFiles(currentFiles.filter((_, i) => i !== index))
   }
 
   const renameFile = (index, newName) => {
     if (!newName.trim()) return
-    const existing = form.files.map((f, i) => i !== index ? f.name : null).filter(Boolean)
+    const existing = currentFiles.map((f, i) => i !== index ? f.name : null).filter(Boolean)
     if (existing.includes(newName.trim())) return
     const language = languageFromFilename(newName.trim())
-    update('files', form.files.map((f, i) =>
+    setCurrentFiles(currentFiles.map((f, i) =>
       i === index ? { ...f, name: newName.trim(), language } : f
     ))
   }
 
   const addTest = () => {
-    update('tests', [...form.tests, { id: uuidv4(), description: '', assertion: '', failureMessage: '' }])
+    setCurrentTests([...currentTests, { id: uuidv4(), description: '', assertion: '', failureMessage: '' }])
   }
 
   const updateTest = (index, updated) => {
-    update('tests', form.tests.map((t, i) => (i === index ? updated : t)))
+    setCurrentTests(currentTests.map((t, i) => (i === index ? updated : t)))
   }
 
   const deleteTest = (index) => {
-    update('tests', form.tests.filter((_, i) => i !== index))
+    setCurrentTests(currentTests.filter((_, i) => i !== index))
   }
 
   const handleSave = () => {
     if (!form.title.trim()) {
       alert('Please add a challenge title before saving.')
       return
+    }
+
+    if (isMulti) {
+      for (let i = 0; i < form.steps.length; i++) {
+        const step = form.steps[i]
+        if (!step.title?.trim()) {
+          alert(`Step ${i + 1} needs a title.`)
+          return
+        }
+        if (!step.tests || step.tests.length === 0) {
+          alert(`Step ${i + 1} needs at least one test.`)
+          return
+        }
+      }
+
+      // Warn about duplicate filenames across steps
+      const allNames = form.steps.flatMap(s => (s.files || []).map(f => f.name))
+      const duplicates = allNames.filter((n, i) => allNames.indexOf(n) !== i)
+      if (duplicates.length > 0) {
+        if (!window.confirm(`Duplicate filenames across steps: ${[...new Set(duplicates)].join(', ')}. Only the first occurrence will be used. Continue?`)) {
+          return
+        }
+      }
     }
 
     const saved = saveChallenge(form)
@@ -134,12 +263,11 @@ export default function AdminPage() {
   }
 
   const isEditing = Boolean(id || form.id)
-  const lang = form.language
 
   const testsSubtitle = {
     css: <span>Assertions receive <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded text-xs">container</code> and <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded text-xs">getComputedStyle</code></span>,
     python: 'Assertions are Python expressions (no return keyword) that evaluate to True or False',
-  }[lang] ?? 'Tests run sequentially and stop at the first failure'
+  }[currentLang] ?? 'Tests run sequentially and stop at the first failure'
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -172,7 +300,7 @@ export default function AdminPage() {
             />
           </Field>
 
-          <Field label="Language">
+          <Field label={isMulti ? 'Language (display badge)' : 'Language'}>
             <select
               value={form.language}
               onChange={e => handleLanguageChange(e.target.value)}
@@ -199,121 +327,371 @@ export default function AdminPage() {
         </Section>
 
         {/* ── Description ────────────────────────────────────── */}
-        <Section title="Task Description" subtitle="Markdown is supported">
+        <Section title={isMulti ? 'Overview Description' : 'Task Description'} subtitle={isMulti ? 'Shown at the top of the challenge, before step-specific content' : 'Markdown is supported'}>
           <textarea
             value={form.description}
             onChange={e => update('description', e.target.value)}
-            placeholder={`Describe what the student needs to implement.`}
-            rows={10}
+            placeholder={isMulti ? 'Overall challenge overview...' : 'Describe what the student needs to implement.'}
+            rows={isMulti ? 4 : 10}
             className={`${inputClass} font-mono text-sm resize-y`}
           />
         </Section>
 
-        {/* ── Files ───────────────────────────────────────────── */}
-        <Section
-          title="Files"
-          subtitle="Each file has its own code editor. Students see file tabs in the Code panel."
-          action={
-            form.files.length < MAX_FILES && (
-              <select
-                onChange={e => { if (e.target.value) { addFile(e.target.value); e.target.value = '' } }}
-                className={`${inputClass} w-auto text-sm`}
-                defaultValue=""
-              >
-                <option value="" disabled>+ Add File…</option>
-                <option value="javascript">JavaScript (.js)</option>
-                <option value="html">HTML (.html)</option>
-                <option value="css">CSS (.css)</option>
-                <option value="python">Python (.py)</option>
-              </select>
-            )
-          }
-        >
-          {form.files.map((file, i) => (
-            <div key={i} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-              {/* File header */}
-              <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
-                <input
-                  type="text"
-                  value={file.name}
-                  onChange={e => renameFile(i, e.target.value)}
-                  className="text-sm font-mono bg-transparent border-none outline-none text-gray-900 dark:text-white flex-1 min-w-0"
-                />
-                <span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${langBadgeClass(file.language)}`}>
-                  {langDisplayName(file.language)}
-                </span>
-                {file.language === 'javascript' && (
-                  <label className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={file.lockedLines > 0}
-                      onChange={e => updateFile(i, 'lockedLines', e.target.checked ? 2 : 0)}
-                    />
-                    Lock exports
-                  </label>
-                )}
-                {form.files.length > 1 && (
+        {/* ── Multi-step: Step management ──────────────────────── */}
+        {isMulti && (
+          <Section
+            title="Steps"
+            subtitle="Each step has its own description, files, and tests. Students complete steps sequentially."
+            action={
+              <div className="flex items-center gap-2">
+                {form.steps.length === 1 && (
                   <button
-                    onClick={() => deleteFile(i)}
-                    className="text-xs text-gray-400 hover:text-red-600 dark:hover:text-red-400 px-2 py-1 rounded"
+                    onClick={convertToSingleStep}
+                    className="text-sm px-3 py-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium"
                   >
-                    Remove
+                    Convert to Single-Step
                   </button>
                 )}
+                <button
+                  onClick={addStep}
+                  className="text-sm px-4 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 font-medium border border-indigo-200 dark:border-indigo-800"
+                >
+                  + Add Step
+                </button>
               </div>
-              {/* Code editor for this file */}
-              <CodeEditor
-                value={file.code}
-                onChange={val => updateFile(i, 'code', val)}
-                height="200px"
-                language={file.language}
-                className="rounded-none"
-              />
-            </div>
-          ))}
-        </Section>
-
-        {/* ── Tests ──────────────────────────────────────────── */}
-        <Section
-          title="Tests"
-          subtitle={testsSubtitle}
-          action={
-            <button
-              onClick={addTest}
-              className="text-sm px-4 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 font-medium border border-indigo-200 dark:border-indigo-800"
-            >
-              + Add Test
-            </button>
-          }
-        >
-          {form.tests.length === 0 ? (
-            <div
-              className="py-10 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl text-center cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-600"
-              onClick={addTest}
-            >
-              <p className="text-sm text-gray-400 dark:text-gray-500">No tests yet — click to add one</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {form.tests.map((test, i) => (
-                <TestItem
-                  key={test.id}
-                  test={test}
-                  index={i}
-                  onChange={updated => updateTest(i, updated)}
-                  onDelete={() => deleteTest(i)}
-                  assertionHint={ASSERTION_HINTS[lang]}
-                />
+            }
+          >
+            {/* Step tabs */}
+            <div className="flex flex-wrap gap-2 pb-2 border-b border-gray-200 dark:border-gray-700">
+              {form.steps.map((step, i) => (
+                <button
+                  key={step.id}
+                  onClick={() => setActiveStepIndex(i)}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors ${
+                    i === activeStepIndex
+                      ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800'
+                      : 'bg-transparent text-gray-500 dark:text-gray-400 border-transparent hover:bg-gray-100 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  Step {i + 1}{step.title ? `: ${step.title}` : ''}
+                </button>
               ))}
             </div>
-          )}
-        </Section>
+
+            {/* Active step editor */}
+            {form.steps[activeStepIndex] && (
+              <StepEditor
+                step={form.steps[activeStepIndex]}
+                stepIndex={activeStepIndex}
+                totalSteps={form.steps.length}
+                currentFiles={currentFiles}
+                currentTests={currentTests}
+                currentLang={currentLang}
+                testsSubtitle={testsSubtitle}
+                onUpdateStep={(field, value) => updateStep(activeStepIndex, field, value)}
+                onAddFile={addFile}
+                onUpdateFile={updateFile}
+                onDeleteFile={deleteFile}
+                onRenameFile={renameFile}
+                onAddTest={addTest}
+                onUpdateTest={updateTest}
+                onDeleteTest={deleteTest}
+                onMoveStep={moveStep}
+                onRemoveStep={removeStep}
+              />
+            )}
+          </Section>
+        )}
+
+        {/* ── Single-step: Files ─────────────────────────────── */}
+        {!isMulti && (
+          <Section
+            title="Files"
+            subtitle="Each file has its own code editor. Students see file tabs in the Code panel."
+            action={
+              currentFiles.length < MAX_FILES && (
+                <select
+                  onChange={e => { if (e.target.value) { addFile(e.target.value); e.target.value = '' } }}
+                  className={`${inputClass} w-auto text-sm`}
+                  defaultValue=""
+                >
+                  <option value="" disabled>+ Add File…</option>
+                  <option value="javascript">JavaScript (.js)</option>
+                  <option value="html">HTML (.html)</option>
+                  <option value="css">CSS (.css)</option>
+                  <option value="python">Python (.py)</option>
+                </select>
+              )
+            }
+          >
+            <FileList
+              files={currentFiles}
+              onUpdateFile={updateFile}
+              onDeleteFile={deleteFile}
+              onRenameFile={renameFile}
+              minFiles={1}
+            />
+          </Section>
+        )}
+
+        {/* ── Single-step: Tests ─────────────────────────────── */}
+        {!isMulti && (
+          <Section
+            title="Tests"
+            subtitle={testsSubtitle}
+            action={
+              <button
+                onClick={addTest}
+                className="text-sm px-4 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 font-medium border border-indigo-200 dark:border-indigo-800"
+              >
+                + Add Test
+              </button>
+            }
+          >
+            <TestList
+              tests={currentTests}
+              lang={currentLang}
+              onAddTest={addTest}
+              onUpdateTest={updateTest}
+              onDeleteTest={deleteTest}
+            />
+          </Section>
+        )}
+
+        {/* ── Convert to multi-step (shown for single-step challenges) ── */}
+        {!isMulti && (
+          <div className="text-center py-2">
+            <button
+              onClick={convertToMultiStep}
+              className="text-sm text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium"
+            >
+              Convert to Multi-Step Challenge →
+            </button>
+          </div>
+        )}
 
         {/* Bottom save */}
         <div className="flex justify-end pb-8">
           <SaveButton status={saveStatus} onClick={handleSave} large />
         </div>
       </div>
+    </div>
+  )
+}
+
+/* ── Step editor component ─────────────────────────────────────── */
+
+function StepEditor({
+  step, stepIndex, totalSteps,
+  currentFiles, currentTests, currentLang, testsSubtitle,
+  onUpdateStep,
+  onAddFile, onUpdateFile, onDeleteFile, onRenameFile,
+  onAddTest, onUpdateTest, onDeleteTest,
+  onMoveStep, onRemoveStep,
+}) {
+  return (
+    <div className="space-y-5 pt-2">
+      {/* Step header */}
+      <div className="flex items-center justify-between">
+        <div className="flex-1 space-y-3">
+          <Field label="Step Title">
+            <input
+              type="text"
+              value={step.title}
+              onChange={e => onUpdateStep('title', e.target.value)}
+              placeholder={`e.g. Create the HTML structure`}
+              className={inputClass}
+            />
+          </Field>
+          <Field label="Step Language (determines test executor)">
+            <select
+              value={step.language || 'javascript'}
+              onChange={e => onUpdateStep('language', e.target.value)}
+              className={`${inputClass} w-auto`}
+            >
+              <option value="javascript">JavaScript</option>
+              <option value="html">HTML</option>
+              <option value="css">CSS</option>
+              <option value="python">Python</option>
+            </select>
+          </Field>
+        </div>
+      </div>
+
+      {/* Step description */}
+      <Field label="Step Description">
+        <textarea
+          value={step.description}
+          onChange={e => onUpdateStep('description', e.target.value)}
+          placeholder="Instructions for this step (Markdown supported)..."
+          rows={5}
+          className={`${inputClass} font-mono text-sm resize-y`}
+        />
+      </Field>
+
+      {/* Step files */}
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Files Introduced</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400">New files that appear when the student reaches this step</p>
+          </div>
+          {currentFiles.length < MAX_FILES && (
+            <select
+              onChange={e => { if (e.target.value) { onAddFile(e.target.value); e.target.value = '' } }}
+              className={`${inputClass} w-auto text-sm`}
+              defaultValue=""
+            >
+              <option value="" disabled>+ Add File…</option>
+              <option value="javascript">JavaScript (.js)</option>
+              <option value="html">HTML (.html)</option>
+              <option value="css">CSS (.css)</option>
+              <option value="python">Python (.py)</option>
+            </select>
+          )}
+        </div>
+        {currentFiles.length === 0 ? (
+          <div className="py-6 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl text-center">
+            <p className="text-sm text-gray-400 dark:text-gray-500">No files for this step — files from previous steps carry over</p>
+          </div>
+        ) : (
+          <FileList
+            files={currentFiles}
+            onUpdateFile={onUpdateFile}
+            onDeleteFile={onDeleteFile}
+            onRenameFile={onRenameFile}
+            minFiles={0}
+          />
+        )}
+      </div>
+
+      {/* Step tests */}
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Tests</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{testsSubtitle}</p>
+          </div>
+          <button
+            onClick={onAddTest}
+            className="text-sm px-4 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 font-medium border border-indigo-200 dark:border-indigo-800"
+          >
+            + Add Test
+          </button>
+        </div>
+        <TestList
+          tests={currentTests}
+          lang={currentLang}
+          onAddTest={onAddTest}
+          onUpdateTest={onUpdateTest}
+          onDeleteTest={onDeleteTest}
+        />
+      </div>
+
+      {/* Step actions (move/remove) */}
+      <div className="flex items-center gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+        <button
+          onClick={() => onMoveStep(stepIndex, -1)}
+          disabled={stepIndex === 0}
+          className="text-sm px-3 py-1.5 rounded text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed"
+        >
+          ← Move Up
+        </button>
+        <button
+          onClick={() => onMoveStep(stepIndex, 1)}
+          disabled={stepIndex >= totalSteps - 1}
+          className="text-sm px-3 py-1.5 rounded text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed"
+        >
+          Move Down →
+        </button>
+        <div className="flex-1" />
+        {totalSteps > 1 && (
+          <button
+            onClick={() => onRemoveStep(stepIndex)}
+            className="text-sm px-3 py-1.5 rounded text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+          >
+            Remove Step
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/* ── Shared sub-components ─────────────────────────────────────── */
+
+function FileList({ files, onUpdateFile, onDeleteFile, onRenameFile, minFiles = 1 }) {
+  return (
+    <div className="space-y-3">
+      {files.map((file, i) => (
+        <div key={i} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+          {/* File header */}
+          <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
+            <input
+              type="text"
+              value={file.name}
+              onChange={e => onRenameFile(i, e.target.value)}
+              className="text-sm font-mono bg-transparent border-none outline-none text-gray-900 dark:text-white flex-1 min-w-0"
+            />
+            <span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${langBadgeClass(file.language)}`}>
+              {langDisplayName(file.language)}
+            </span>
+            {file.language === 'javascript' && (
+              <label className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={file.lockedLines > 0}
+                  onChange={e => onUpdateFile(i, 'lockedLines', e.target.checked ? 2 : 0)}
+                />
+                Lock exports
+              </label>
+            )}
+            {files.length > minFiles && (
+              <button
+                onClick={() => onDeleteFile(i)}
+                className="text-xs text-gray-400 hover:text-red-600 dark:hover:text-red-400 px-2 py-1 rounded"
+              >
+                Remove
+              </button>
+            )}
+          </div>
+          {/* Code editor */}
+          <CodeEditor
+            value={file.code}
+            onChange={val => onUpdateFile(i, 'code', val)}
+            height="200px"
+            language={file.language}
+            className="rounded-none"
+          />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function TestList({ tests, lang, onAddTest, onUpdateTest, onDeleteTest }) {
+  if (tests.length === 0) {
+    return (
+      <div
+        className="py-10 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl text-center cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-600"
+        onClick={onAddTest}
+      >
+        <p className="text-sm text-gray-400 dark:text-gray-500">No tests yet — click to add one</p>
+      </div>
+    )
+  }
+  return (
+    <div className="space-y-4">
+      {tests.map((test, i) => (
+        <TestItem
+          key={test.id}
+          test={test}
+          index={i}
+          onChange={updated => onUpdateTest(i, updated)}
+          onDelete={() => onDeleteTest(i)}
+          assertionHint={ASSERTION_HINTS[lang]}
+        />
+      ))}
     </div>
   )
 }

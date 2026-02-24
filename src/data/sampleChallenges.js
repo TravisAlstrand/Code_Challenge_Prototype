@@ -2025,4 +2025,164 @@ exports.groupBy = groupBy;
       },
     ],
   },
+  {
+    id: 'sample-multistep-nav',
+    title: 'Build a Styled Navigation',
+    language: 'css',
+    difficulty: 'intermediate',
+    description: `Build a complete styled navigation bar in two steps. Start with the HTML structure, then add CSS styling.
+
+Each step builds on the previous one — your code carries forward!`,
+    steps: [
+      {
+        id: 'sample-ms-nav-step1',
+        title: 'Create the HTML Structure',
+        description: `Create a navigation bar using semantic HTML.
+
+### Requirements
+
+1. A \`<nav>\` element as the outer wrapper
+2. Inside it, an unordered list (\`<ul>\`) containing **at least 3** list items (\`<li>\`)
+3. Each \`<li>\` must contain an \`<a>\` (anchor) link
+4. One link must point to \`#home\`, one to \`#about\`, and one to \`#contact\`
+
+### Tips
+
+- \`<nav>\` tells the browser (and screen readers) this is a navigation section
+- Use \`<ul>\` for an unordered list of links
+- \`href="#section"\` creates an in-page anchor link
+`,
+        language: 'html',
+        files: [
+          {
+            name: 'index.html',
+            language: 'html',
+            code: `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Navigation</title>
+  </head>
+  <body>
+
+    <!-- Build your navigation bar here -->
+
+  </body>
+</html>
+`,
+            lockedLines: 0,
+          },
+        ],
+        tests: [
+          {
+            id: 'ms-nav-t1',
+            description: 'Page contains a <nav> element',
+            assertion: 'return document.querySelector("nav") !== null;',
+            failureMessage: 'Add a <nav> element to wrap your navigation.',
+          },
+          {
+            id: 'ms-nav-t2',
+            description: '<nav> contains a <ul> with at least 3 <li> items',
+            assertion: 'return document.querySelectorAll("nav ul li").length >= 3;',
+            failureMessage: 'Add a <ul> with at least 3 <li> items inside your <nav>.',
+          },
+          {
+            id: 'ms-nav-t3',
+            description: 'Each <li> contains an <a> link',
+            assertion: `
+              const items = document.querySelectorAll("nav ul li");
+              return items.length > 0 && [...items].every(li => li.querySelector("a") !== null);
+            `,
+            failureMessage: 'Every <li> must contain an <a> anchor element.',
+          },
+          {
+            id: 'ms-nav-t4',
+            description: 'Links include #home, #about, and #contact hrefs',
+            assertion: `
+              const hrefs = [...document.querySelectorAll("nav a")].map(a => a.getAttribute("href"));
+              return hrefs.includes("#home") && hrefs.includes("#about") && hrefs.includes("#contact");
+            `,
+            failureMessage: 'Include links with href="#home", href="#about", and href="#contact".',
+          },
+        ],
+      },
+      {
+        id: 'sample-ms-nav-step2',
+        title: 'Style the Navigation',
+        description: `Now add CSS to make your navigation look polished.
+
+### Requirements
+
+1. \`nav ul\` must use **flexbox** with \`list-style: none\` to create a horizontal layout
+2. \`nav a\` must have a **non-transparent background color**
+3. \`nav a\` must have **at least 8px padding** on all sides
+4. \`nav a\` must have \`text-decoration: none\`
+
+### Tips
+
+- \`display: flex\` on the \`<ul>\` makes items flow horizontally
+- \`list-style: none\` removes the bullet points
+- \`text-decoration: none\` removes the underline from links
+- Add a \`gap\` on the \`<ul>\` for spacing between items
+`,
+        language: 'css',
+        files: [
+          {
+            name: 'styles.css',
+            language: 'css',
+            code: `/* Style the navigation list */
+nav ul {
+
+}
+
+/* Style the navigation links */
+nav a {
+
+}
+`,
+            lockedLines: 0,
+          },
+        ],
+        tests: [
+          {
+            id: 'ms-nav-t5',
+            description: 'nav ul uses flexbox with no list-style',
+            assertion: `
+              const s = getComputedStyle(container.querySelector("nav ul"));
+              return s.display === "flex" && s.listStyleType === "none";
+            `,
+            failureMessage: 'Set display: flex and list-style: none on nav ul.',
+          },
+          {
+            id: 'ms-nav-t6',
+            description: 'nav a has a colored background',
+            assertion: `
+              const bg = getComputedStyle(container.querySelector("nav a")).backgroundColor;
+              return bg !== "rgba(0, 0, 0, 0)" && bg !== "transparent";
+            `,
+            failureMessage: 'Add a background-color to nav a.',
+          },
+          {
+            id: 'ms-nav-t7',
+            description: 'nav a has at least 8px padding',
+            assertion: `
+              const s = getComputedStyle(container.querySelector("nav a"));
+              return parseFloat(s.paddingTop) >= 8 && parseFloat(s.paddingLeft) >= 8;
+            `,
+            failureMessage: 'Add at least 8px padding to nav a.',
+          },
+          {
+            id: 'ms-nav-t8',
+            description: 'nav a has no text decoration',
+            assertion: `
+              return getComputedStyle(container.querySelector("nav a")).textDecorationLine === "none";
+            `,
+            failureMessage: 'Set text-decoration: none on nav a.',
+          },
+        ],
+      },
+    ],
+  },
 ]

@@ -140,7 +140,16 @@ export default function useChallenges() {
       ...original,
       id: uuidv4(),
       title: `${original.title} (Copy)`,
-      tests: original.tests.map(t => ({ ...t, id: uuidv4() })),
+      tests: original.tests?.map(t => ({ ...t, id: uuidv4() })) || [],
+    }
+    // Deep-clone steps with new IDs
+    if (Array.isArray(original.steps)) {
+      copy.steps = original.steps.map(step => ({
+        ...step,
+        id: uuidv4(),
+        files: step.files.map(f => ({ ...f })),
+        tests: step.tests.map(t => ({ ...t, id: uuidv4() })),
+      }))
     }
     setChallenges(prev => [...prev, copy])
     return copy

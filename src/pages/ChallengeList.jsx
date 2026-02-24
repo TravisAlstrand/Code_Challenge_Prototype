@@ -8,7 +8,7 @@ import { DIFFICULTIES, difficultyLabel, difficultyFilterActiveClass } from '../u
 
 export default function ChallengeList() {
   const { challenges, deleteChallenge, duplicateChallenge, exportChallenges, importChallenges } = useChallenges()
-  const { isComplete, resetComplete, completedCount } = useProgress()
+  const { isComplete, resetComplete, resetStepProgress, getStepProgress, completedCount } = useProgress()
   const fileInputRef = useRef()
   const [activeFilter, setActiveFilter] = useState('all')
   const [activeDifficultyFilter, setActiveDifficultyFilter] = useState('all')
@@ -205,8 +205,15 @@ export default function ChallengeList() {
               challenge={challenge}
               onDelete={deleteChallenge}
               onDuplicate={duplicateChallenge}
-              onReset={resetComplete}
+              onReset={(id) => {
+                if (challenge.steps?.length > 0) {
+                  resetStepProgress(id)
+                } else {
+                  resetComplete(id)
+                }
+              }}
               isCompleted={isComplete(challenge.id)}
+              stepProgress={challenge.steps?.length > 0 ? getStepProgress(challenge.id) : null}
             />
           ))}
         </div>

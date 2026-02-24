@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { langBadgeClass } from '../utils/langBadge'
 import { difficultyBadgeClass, difficultyLabel } from '../utils/difficultyBadge'
 
-export default function ChallengeCard({ challenge, onDelete, onDuplicate, onReset, isCompleted = false }) {
+export default function ChallengeCard({ challenge, onDelete, onDuplicate, onReset, isCompleted = false, stepProgress = null }) {
   const navigate = useNavigate()
 
   const badgeClass = langBadgeClass(challenge.language)
@@ -51,9 +51,22 @@ export default function ChallengeCard({ challenge, onDelete, onDuplicate, onRese
                   {difficultyLabel(challenge.difficulty)}
                 </span>
               )}
-              <span className="text-xs text-gray-400 dark:text-gray-500">
-                {challenge.tests?.length ?? 0} test{challenge.tests?.length !== 1 ? 's' : ''}
-              </span>
+              {challenge.steps?.length > 0 ? (
+                <>
+                  <span className="text-xs text-gray-400 dark:text-gray-500">
+                    {challenge.steps.length} step{challenge.steps.length !== 1 ? 's' : ''}
+                  </span>
+                  {stepProgress && !isCompleted && (
+                    <span className="text-xs text-indigo-500 dark:text-indigo-400 font-medium">
+                      Step {(stepProgress.currentStep ?? 0) + 1}/{challenge.steps.length}
+                    </span>
+                  )}
+                </>
+              ) : (
+                <span className="text-xs text-gray-400 dark:text-gray-500">
+                  {challenge.tests?.length ?? 0} test{challenge.tests?.length !== 1 ? 's' : ''}
+                </span>
+              )}
             </div>
           </div>
         </div>
