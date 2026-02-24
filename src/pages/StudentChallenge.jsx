@@ -9,6 +9,7 @@ import PreviewFrame from '../components/PreviewFrame'
 import { executeChallenge } from '../engine/executor'
 import { prewarmPython, isPythonReady } from '../engine/pythonRuntime'
 import { langBadgeClass, langDisplayName } from '../utils/langBadge'
+import useProgress from '../hooks/useProgress'
 
 // Languages that get a Preview tab
 const PREVIEWABLE = ['javascript', 'html', 'css']
@@ -25,6 +26,7 @@ export default function StudentChallenge() {
   const [result, setResult] = useState(null)
   const [running, setRunning] = useState(false)
   const [pythonReady, setPythonReady] = useState(false)
+  const { markComplete } = useProgress()
 
   // Debounced code is what PreviewFrame actually renders
   const debouncedCode = useDebounce(code, 650)
@@ -81,6 +83,7 @@ export default function StudentChallenge() {
     setActiveTab('results')
     const output = await executeChallenge(challenge.language, code, challenge.tests, { fixtureHtml: challenge.fixtureHtml })
     setResult(output)
+    if (output.success) markComplete(challenge.id)
     setRunning(false)
   }
 

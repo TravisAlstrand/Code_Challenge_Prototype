@@ -1,11 +1,13 @@
 import { useRef, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import useChallenges from '../hooks/useChallenges'
+import useProgress from '../hooks/useProgress'
 import ChallengeCard from '../components/ChallengeCard'
 import { langBadgeClass, langDisplayName } from '../utils/langBadge'
 
 export default function ChallengeList() {
   const { challenges, deleteChallenge, duplicateChallenge, exportChallenges, importChallenges } = useChallenges()
+  const { isComplete, resetComplete, completedCount } = useProgress()
   const fileInputRef = useRef()
   const [activeFilter, setActiveFilter] = useState('all')
 
@@ -46,6 +48,11 @@ export default function ChallengeList() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Challenges</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">
             {visibleChallenges.length} challenge{visibleChallenges.length !== 1 ? 's' : ''}{activeFilter !== 'all' ? ` in ${activeFilter}` : ' available'}
+            {completedCount > 0 && (
+              <span className="ml-2 text-green-600 dark:text-green-400 font-medium">
+                · {completedCount} completed
+              </span>
+            )}
           </p>
         </div>
 
@@ -133,6 +140,8 @@ export default function ChallengeList() {
               challenge={challenge}
               onDelete={deleteChallenge}
               onDuplicate={duplicateChallenge}
+              onReset={resetComplete}
+              isCompleted={isComplete(challenge.id)}
             />
           ))}
         </div>
