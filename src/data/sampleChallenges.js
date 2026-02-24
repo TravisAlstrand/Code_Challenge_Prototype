@@ -528,6 +528,184 @@ Feel free to add more content, sections, or styling — just keep the required e
     ],
   },
   {
+    id: 'sample-py-reverse',
+    title: 'Reverse a String',
+    language: 'python',
+    description: `## Reverse a String
+
+Write a function \`reverse_string\` that takes a string and returns it reversed.
+
+### Examples
+
+\`\`\`python
+reverse_string("hello")   # → "olleh"
+reverse_string("Python")  # → "nohtyP"
+reverse_string("")        # → ""
+reverse_string("a")       # → "a"
+\`\`\`
+
+### Tips
+
+- Python strings support slicing: \`s[::-1]\` returns the string reversed
+- You can also use \`"".join(reversed(s))\`
+`,
+    starterCode: `def reverse_string(s):
+    # Your code here
+    pass
+`,
+    tests: [
+      {
+        id: 'sample-py-reverse-t1',
+        description: 'reverse_string("hello") returns "olleh"',
+        assertion: 'reverse_string("hello") == "olleh"',
+        failureMessage: 'Expected reverse_string("hello") to return "olleh".',
+      },
+      {
+        id: 'sample-py-reverse-t2',
+        description: 'reverse_string("Python") returns "nohtyP"',
+        assertion: 'reverse_string("Python") == "nohtyP"',
+        failureMessage: 'Expected reverse_string("Python") to return "nohtyP".',
+      },
+      {
+        id: 'sample-py-reverse-t3',
+        description: 'reverse_string("") returns ""',
+        assertion: 'reverse_string("") == ""',
+        failureMessage: 'Expected reverse_string("") to return an empty string.',
+      },
+      {
+        id: 'sample-py-reverse-t4',
+        description: 'reverse_string("a") returns "a"',
+        assertion: 'reverse_string("a") == "a"',
+        failureMessage: 'A single character reversed is itself.',
+      },
+      {
+        id: 'sample-py-reverse-t5',
+        description: 'reverse_string("racecar") returns "racecar"',
+        assertion: 'reverse_string("racecar") == "racecar"',
+        failureMessage: 'Expected reverse_string("racecar") to return "racecar" (it\'s a palindrome).',
+      },
+    ],
+  },
+  {
+    id: 'sample-py-filter-even',
+    title: 'Filter Even Numbers',
+    language: 'python',
+    description: `## Filter Even Numbers
+
+Write a function \`filter_even\` that takes a list of integers and returns a new list containing only the even numbers, in the same order.
+
+### Examples
+
+\`\`\`python
+filter_even([1, 2, 3, 4, 5])  # → [2, 4]
+filter_even([1, 3, 5])        # → []
+filter_even([2, 4, 6])        # → [2, 4, 6]
+filter_even([])               # → []
+\`\`\`
+
+### Tips
+
+- A number is even if \`n % 2 == 0\`
+- List comprehensions make this concise: \`[x for x in numbers if x % 2 == 0]\`
+- \`0\` is considered even
+`,
+    starterCode: `def filter_even(numbers):
+    # Return a list of only the even numbers
+    pass
+`,
+    tests: [
+      {
+        id: 'sample-py-filter-t1',
+        description: 'filter_even([1, 2, 3, 4, 5]) returns [2, 4]',
+        assertion: 'filter_even([1, 2, 3, 4, 5]) == [2, 4]',
+        failureMessage: 'Expected filter_even([1, 2, 3, 4, 5]) to return [2, 4].',
+      },
+      {
+        id: 'sample-py-filter-t2',
+        description: 'filter_even([1, 3, 5]) returns []',
+        assertion: 'filter_even([1, 3, 5]) == []',
+        failureMessage: 'Expected filter_even([1, 3, 5]) to return [] — no even numbers.',
+      },
+      {
+        id: 'sample-py-filter-t3',
+        description: 'filter_even([2, 4, 6]) returns [2, 4, 6]',
+        assertion: 'filter_even([2, 4, 6]) == [2, 4, 6]',
+        failureMessage: 'Expected filter_even([2, 4, 6]) to return [2, 4, 6].',
+      },
+      {
+        id: 'sample-py-filter-t4',
+        description: 'filter_even([]) returns []',
+        assertion: 'filter_even([]) == []',
+        failureMessage: 'Expected filter_even([]) to return [] for an empty list.',
+      },
+      {
+        id: 'sample-py-filter-t5',
+        description: 'filter_even([0, -2, 7]) returns [0, -2]',
+        assertion: 'filter_even([0, -2, 7]) == [0, -2]',
+        failureMessage: 'Remember: 0 and negative even numbers count too.',
+      },
+    ],
+  },
+  {
+    id: 'sample-py-char-count',
+    title: 'Count Character Occurrences',
+    language: 'python',
+    description: `## Count Character Occurrences
+
+Write a function \`char_count\` that takes a string and returns a dictionary mapping each character to the number of times it appears.
+
+### Examples
+
+\`\`\`python
+char_count("hello")   # → {"h": 1, "e": 1, "l": 2, "o": 1}
+char_count("")        # → {}
+char_count("aaa")     # → {"a": 3}
+\`\`\`
+
+### Tips
+
+- Loop over the string and build a dict manually, or use \`dict.get(key, 0)\`
+- \`collections.Counter\` does this in one line if you want a challenge!
+- Every character (including spaces) should be counted
+`,
+    starterCode: `def char_count(s):
+    # Return a dict mapping each character to its count
+    pass
+`,
+    tests: [
+      {
+        id: 'sample-py-char-t1',
+        description: 'char_count("hello") returns correct counts',
+        assertion: 'char_count("hello") == {"h": 1, "e": 1, "l": 2, "o": 1}',
+        failureMessage: 'Expected char_count("hello") to return {"h": 1, "e": 1, "l": 2, "o": 1}.',
+      },
+      {
+        id: 'sample-py-char-t2',
+        description: 'char_count("") returns {}',
+        assertion: 'char_count("") == {}',
+        failureMessage: 'Expected char_count("") to return an empty dict.',
+      },
+      {
+        id: 'sample-py-char-t3',
+        description: 'char_count("aaa") returns {"a": 3}',
+        assertion: 'char_count("aaa") == {"a": 3}',
+        failureMessage: 'Expected char_count("aaa") to return {"a": 3}.',
+      },
+      {
+        id: 'sample-py-char-t4',
+        description: 'char_count("ab") returns {"a": 1, "b": 1}',
+        assertion: 'char_count("ab") == {"a": 1, "b": 1}',
+        failureMessage: 'Expected char_count("ab") to return {"a": 1, "b": 1}.',
+      },
+      {
+        id: 'sample-py-char-t5',
+        description: 'char_count("abcabc") returns {"a": 2, "b": 2, "c": 2}',
+        assertion: 'char_count("abcabc") == {"a": 2, "b": 2, "c": 2}',
+        failureMessage: 'Expected char_count("abcabc") to return {"a": 2, "b": 2, "c": 2}.',
+      },
+    ],
+  },
+  {
     id: 'sample-add',
     title: 'Sum Two Numbers',
     language: 'javascript',

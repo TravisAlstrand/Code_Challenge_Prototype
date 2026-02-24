@@ -7,7 +7,8 @@ import MarkdownRenderer from '../components/MarkdownRenderer'
 import ConsoleOutput from '../components/ConsoleOutput'
 import PreviewFrame from '../components/PreviewFrame'
 import { executeChallenge } from '../engine/executor'
-import { langBadgeClass } from '../utils/langBadge'
+import { prewarmPython, isPythonReady } from '../engine/pythonRuntime'
+import { langBadgeClass, langDisplayName } from '../utils/langBadge'
 
 // Languages that get a Preview tab
 const PREVIEWABLE = ['javascript', 'html', 'css']
@@ -23,6 +24,7 @@ export default function StudentChallenge() {
   const [activeTab, setActiveTab] = useState('code')
   const [result, setResult] = useState(null)
   const [running, setRunning] = useState(false)
+  const [pythonReady, setPythonReady] = useState(false)
 
   // Debounced code is what PreviewFrame actually renders
   const debouncedCode = useDebounce(code, 650)
@@ -35,6 +37,20 @@ export default function StudentChallenge() {
       setCode(c.starterCode || '')
     }
   }, [id])
+
+  // Pre-warm Pyodide as soon as a Python challenge is opened so the
+  // ~8 MB download starts in the background rather than at submit time.
+  useEffect(() => {
+    if (challenge?.language?.toLowerCase() === 'python') {
+      if (isPythonReady()) {
+        setPythonReady(true)
+      } else {
+        prewarmPython()
+          .then(() => setPythonReady(true))
+          .catch(() => setPythonReady(false))
+      }
+    }
+  }, [challenge])
 
   if (!challenge) {
     return (
@@ -49,18 +65,23 @@ export default function StudentChallenge() {
   }
 
   const hasPreview = PREVIEWABLE.includes(challenge.language?.toLowerCase())
+  const isPython = challenge.language?.toLowerCase() === 'python'
 
   const visibleTabs = hasPreview ? TABS : TABS.filter(t => t !== 'preview')
 
+  const submitDisabled = running || (isPython && !pythonReady)
+  const submitLabel = running
+    ? 'Running…'
+    : (isPython && !pythonReady)
+    ? 'Loading Python…'
+    : 'Submit'
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setRunning(true)
     setActiveTab('results')
-    setTimeout(() => {
-      const output = executeChallenge(challenge.language, code, challenge.tests, { fixtureHtml: challenge.fixtureHtml })
-      setResult(output)
-      setRunning(false)
-    }, 50)
+    const output = await executeChallenge(challenge.language, code, challenge.tests, { fixtureHtml: challenge.fixtureHtml })
+    setResult(output)
+    setRunning(false)
   }
 
   const handleReset = () => {
@@ -94,7 +115,7 @@ export default function StudentChallenge() {
                   {challenge.title}
                 </h1>
                 <span className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-full font-medium ${langBadgeClass(challenge.language)}`}>
-                  {challenge.language}
+                  {langDisplayName(challenge.language)}
                 </span>
               </div>
             </div>
@@ -214,10 +235,10 @@ export default function StudentChallenge() {
             </div>
             <button
               onClick={handleSubmit}
-              disabled={running}
+              disabled={submitDisabled}
               className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg shadow-sm"
             >
-              {running ? 'Running…' : 'Submit'}
+              {submitLabel}
             </button>
           </div>
         </div>

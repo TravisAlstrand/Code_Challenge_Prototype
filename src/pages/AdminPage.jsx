@@ -27,6 +27,10 @@ exports.solution = solution;
   css: `/* Write your CSS here */
 
 `,
+  python: `def solution(params):
+    # Your code here
+    pass
+`,
 }
 
 const DEFAULT_FIXTURE_HTML = {
@@ -42,6 +46,7 @@ const ASSERTION_HINTS = {
   javascript: 'return exports.myFn(args) === expectedValue;',
   html: 'return document.querySelector("h1")?.textContent?.trim() === "Hello";',
   css: 'return getComputedStyle(container.querySelector(".my-class")).display === "flex";',
+  python: 'solution(args) == expected_value',
 }
 
 function emptyChallenge() {
@@ -124,12 +129,19 @@ export default function AdminPage() {
   const isEditing = Boolean(id || form.id)
   const lang = form.language
   const isCss = lang === 'css'
+  const isPython = lang === 'python'
 
   const starterSubtitle = {
     javascript: <span>Use <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded text-xs">exports.fnName = fnName</code> to expose functions to tests</span>,
     html: 'Write the HTML the student will start with',
     css: 'Write the CSS the student will start with',
+    python: 'Define functions the tests will call directly',
   }[lang] ?? null
+
+  const testsSubtitle = {
+    css: <span>Assertions receive <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded text-xs">container</code> and <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded text-xs">getComputedStyle</code></span>,
+    python: 'Assertions are Python expressions (no return keyword) that evaluate to True or False',
+  }[lang] ?? 'Tests run sequentially and stop at the first failure'
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -171,7 +183,7 @@ export default function AdminPage() {
               <option value="javascript">JavaScript</option>
               <option value="html">HTML</option>
               <option value="css">CSS</option>
-              <option value="python" disabled>Python (coming soon)</option>
+              <option value="python">Python</option>
             </select>
           </Field>
         </Section>
@@ -215,11 +227,7 @@ export default function AdminPage() {
         {/* ── Tests ──────────────────────────────────────────── */}
         <Section
           title="Tests"
-          subtitle={
-            isCss
-              ? <span>Assertions receive <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded text-xs">container</code> and <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded text-xs">getComputedStyle</code></span>
-              : 'Tests run sequentially and stop at the first failure'
-          }
+          subtitle={testsSubtitle}
           action={
             <button
               onClick={addTest}

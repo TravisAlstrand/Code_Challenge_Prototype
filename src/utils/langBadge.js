@@ -15,3 +15,15 @@ export const LANG_BADGE_FALLBACK = 'bg-gray-100 text-gray-700 dark:bg-gray-700 d
 export function langBadgeClass(language) {
   return LANG_BADGES[language?.toLowerCase()] ?? LANG_BADGE_FALLBACK
 }
+
+const LANG_DISPLAY_NAMES = {
+  javascript: 'JavaScript',
+  html:       'HTML',
+  css:        'CSS',
+  python:     'Python',
+}
+
+export function langDisplayName(language) {
+  const key = language?.toLowerCase()
+  return LANG_DISPLAY_NAMES[key] ?? language
+}

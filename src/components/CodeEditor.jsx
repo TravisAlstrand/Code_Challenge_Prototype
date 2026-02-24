@@ -3,14 +3,16 @@ import CodeMirror from '@uiw/react-codemirror'
 import { javascript } from '@codemirror/lang-javascript'
 import { html } from '@codemirror/lang-html'
 import { css } from '@codemirror/lang-css'
+import { python } from '@codemirror/lang-python'
 import { useTheme } from '../context/ThemeContext'
 
 function getExtensions(language) {
   switch (language?.toLowerCase()) {
-    case 'html': return [html()]
-    case 'css':  return [css()]
+    case 'html':   return [html()]
+    case 'css':    return [css()]
+    case 'python': return [python()]
     case 'javascript':
-    default:     return [javascript({ jsx: false })]
+    default:       return [javascript({ jsx: false })]
   }
 }
 
