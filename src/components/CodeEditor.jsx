@@ -65,7 +65,7 @@ export default function CodeEditor({ value, onChange, height = '300px', readOnly
   const lockedExtension = useMemo(() => createLockedExtension(lockedLines), [lockedLines])
 
   return (
-    <div className={`${className} overflow-hidden border border-gray-200 dark:border-gray-700 text-sm`}>
+    <div className={`${className} overflow-hidden border border-gray-200 dark:border-gray-700 text-sm ${height === '100%' ? 'h-full' : ''}`}>
       <CodeMirror
         value={value}
         height={height}

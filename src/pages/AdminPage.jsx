@@ -21,7 +21,16 @@ function emptyChallenge() {
     title: '',
     languages: ['javascript'],
     difficulty: 'beginner',
-    description: '',
+    description: `Describe what the student needs to implement.
+
+### Requirements
+1. Task 1
+2. Task 2
+
+### Tips
+- Tip 1
+- Tip 2
+`,
     files: [createDefaultFile('javascript')],
     tests: [],
   }
@@ -239,6 +248,21 @@ export default function AdminPage() {
     setCurrentTests(currentTests.filter((_, i) => i !== index))
   }
 
+  const duplicateTest = (index) => {
+    const original = currentTests[index]
+    if (!original) return
+    const copy = { ...original, id: uuidv4() }
+    setCurrentTests([...currentTests, copy])
+  }
+
+  const moveTest = (fromIndex, toIndex) => {
+    if (toIndex < 0 || toIndex >= currentTests.length) return
+    const updated = [...currentTests]
+    const [moved] = updated.splice(fromIndex, 1)
+    updated.splice(toIndex, 0, moved)
+    setCurrentTests(updated)
+  }
+
   const handleSave = () => {
     if (!form.title.trim()) {
       alert('Please add a challenge title before saving.')
@@ -353,6 +377,17 @@ export default function AdminPage() {
               ))}
             </select>
           </Field>
+
+          {!isMulti && (
+            <div className="pt-2 border-t border-gray-100 dark:border-gray-700">
+              <button
+                onClick={convertToMultiStep}
+                className="text-sm px-4 py-2 rounded-lg border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 font-medium"
+              >
+                Convert to Multi-Step Challenge
+              </button>
+            </div>
+          )}
         </Section>
 
         {/* ── Description ────────────────────────────────────── */}
@@ -425,6 +460,8 @@ export default function AdminPage() {
                 onAddTest={addTest}
                 onUpdateTest={updateTest}
                 onDeleteTest={deleteTest}
+                onDuplicateTest={duplicateTest}
+                onMoveTest={moveTest}
                 onMoveStep={moveStep}
                 onRemoveStep={removeStep}
               />
@@ -483,21 +520,13 @@ export default function AdminPage() {
               onAddTest={addTest}
               onUpdateTest={updateTest}
               onDeleteTest={deleteTest}
+              onDuplicateTest={duplicateTest}
+              onMoveTest={moveTest}
             />
           </Section>
         )}
 
-        {/* ── Convert to multi-step (shown for single-step challenges) ── */}
-        {!isMulti && (
-          <div className="text-center py-2">
-            <button
-              onClick={convertToMultiStep}
-              className="text-sm text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium"
-            >
-              Convert to Multi-Step Challenge →
-            </button>
-          </div>
-        )}
+        {/* Removed — Convert to Multi-Step is now inside Challenge Details */}
 
         {/* Bottom save */}
         <div className="flex justify-end pb-8">
@@ -515,7 +544,7 @@ function StepEditor({
   currentFiles, currentTests, currentLang, testsSubtitle,
   onUpdateStep,
   onAddFile, onUpdateFile, onDeleteFile, onRenameFile,
-  onAddTest, onUpdateTest, onDeleteTest,
+  onAddTest, onUpdateTest, onDeleteTest, onDuplicateTest, onMoveTest,
   onMoveStep, onRemoveStep,
 }) {
   return (
@@ -614,6 +643,8 @@ function StepEditor({
           onAddTest={onAddTest}
           onUpdateTest={onUpdateTest}
           onDeleteTest={onDeleteTest}
+          onDuplicateTest={onDuplicateTest}
+          onMoveTest={onMoveTest}
         />
       </div>
 
@@ -698,7 +729,10 @@ function FileList({ files, onUpdateFile, onDeleteFile, onRenameFile, minFiles = 
   )
 }
 
-function TestList({ tests, lang, onAddTest, onUpdateTest, onDeleteTest }) {
+function TestList({ tests, lang, onAddTest, onUpdateTest, onDeleteTest, onDuplicateTest, onMoveTest }) {
+  const [dragIndex, setDragIndex] = useState(null)
+  const [dragOverIndex, setDragOverIndex] = useState(null)
+
   if (tests.length === 0) {
     return (
       <div
@@ -712,14 +746,23 @@ function TestList({ tests, lang, onAddTest, onUpdateTest, onDeleteTest }) {
   return (
     <div className="space-y-4">
       {tests.map((test, i) => (
-        <TestItem
+        <div
           key={test.id}
-          test={test}
-          index={i}
-          onChange={updated => onUpdateTest(i, updated)}
-          onDelete={() => onDeleteTest(i)}
-          assertionHint={ASSERTION_HINTS[lang]}
-        />
+          draggable
+          onDragStart={() => setDragIndex(i)}
+          onDragEnd={() => { if (dragIndex !== null && dragOverIndex !== null && dragIndex !== dragOverIndex) onMoveTest(dragIndex, dragOverIndex); setDragIndex(null); setDragOverIndex(null) }}
+          onDragOver={(e) => { e.preventDefault(); setDragOverIndex(i) }}
+          className={`transition-opacity ${dragIndex === i ? 'opacity-40' : ''} ${dragOverIndex === i && dragIndex !== i ? 'ring-2 ring-indigo-400 rounded-xl' : ''}`}
+        >
+          <TestItem
+            test={test}
+            index={i}
+            onChange={updated => onUpdateTest(i, updated)}
+            onDelete={() => onDeleteTest(i)}
+            onDuplicate={() => onDuplicateTest(i)}
+            assertionHint={ASSERTION_HINTS[lang]}
+          />
+        </div>
       ))}
     </div>
   )

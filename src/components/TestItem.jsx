@@ -1,18 +1,37 @@
-export default function TestItem({ test, index, onChange, onDelete, assertionHint }) {
+export default function TestItem({ test, index, onChange, onDelete, onDuplicate, assertionHint }) {
   const update = (field, value) => onChange({ ...test, [field]: value })
 
   return (
     <div className="bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-xl p-4 space-y-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-          Test {index + 1}
-        </span>
-        <button
-          onClick={onDelete}
-          className="text-xs text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50 px-2 py-1 rounded"
-        >
-          Remove
-        </button>
+        <div className="flex items-center gap-2">
+          <span className="cursor-grab active:cursor-grabbing text-gray-300 dark:text-gray-600 hover:text-gray-500 dark:hover:text-gray-400" title="Drag to reorder">
+            <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+              <circle cx="5" cy="3" r="1.2" /><circle cx="11" cy="3" r="1.2" />
+              <circle cx="5" cy="8" r="1.2" /><circle cx="11" cy="8" r="1.2" />
+              <circle cx="5" cy="13" r="1.2" /><circle cx="11" cy="13" r="1.2" />
+            </svg>
+          </span>
+          <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+            Test {index + 1}
+          </span>
+        </div>
+        <div className="flex items-center gap-1">
+          {onDuplicate && (
+            <button
+              onClick={onDuplicate}
+              className="text-xs text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 px-2 py-1 rounded"
+            >
+              Duplicate
+            </button>
+          )}
+          <button
+            onClick={onDelete}
+            className="text-xs text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50 px-2 py-1 rounded"
+          >
+            Remove
+          </button>
+        </div>
       </div>
 
       <div>
