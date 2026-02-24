@@ -4,18 +4,7 @@ export const sampleChallenges = [
     title: 'Center Content with Flexbox',
     language: 'css',
     difficulty: 'beginner',
-    fixtureHtml: `<div class="wrapper">
-  <div class="card">I'm centered!</div>
-</div>`,
     description: `Use CSS Flexbox to center a card both **horizontally** and **vertically** inside its wrapper.
-
-### The HTML structure (provided for you)
-
-\`\`\`html
-<div class="wrapper">
-  <div class="card">I'm centered!</div>
-</div>
-\`\`\`
 
 ### Requirements
 
@@ -32,7 +21,11 @@ export const sampleChallenges = [
 - \`align-items: center\` centers children on the **cross axis** (vertical by default)
 - Computed colors are always in \`rgb()\` format — \`color: red\` computes to \`rgb(255, 0, 0)\`
 `,
-    starterCode: `/* Style the wrapper to center its child */
+    files: [
+      {
+        name: 'styles.css',
+        language: 'css',
+        code: `/* Style the wrapper to center its child */
 .wrapper {
 
 }
@@ -42,6 +35,29 @@ export const sampleChallenges = [
 
 }
 `,
+        lockedLines: 0,
+      },
+      {
+        name: 'index.html',
+        language: 'html',
+        code: `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="card">I'm centered!</div>
+    </div>
+  </body>
+</html>
+`,
+        lockedLines: 0,
+      },
+    ],
     tests: [
       {
         id: 'sample-css-flex-t1',
@@ -96,14 +112,7 @@ export const sampleChallenges = [
     title: 'Style a Button',
     language: 'css',
     difficulty: 'beginner',
-    fixtureHtml: `<button class="btn">Click Me</button>`,
     description: `Turn a plain browser button into a polished, clickable UI element using CSS.
-
-### The HTML structure (provided for you)
-
-\`\`\`html
-<button class="btn">Click Me</button>
-\`\`\`
 
 ### Requirements
 
@@ -121,11 +130,36 @@ export const sampleChallenges = [
 - \`cursor: pointer\` signals the element is clickable
 - \`padding: 8px 16px\` adds breathing room inside the button
 `,
-    starterCode: `/* Style the button */
+    files: [
+      {
+        name: 'styles.css',
+        language: 'css',
+        code: `/* Style the button */
 .btn {
 
 }
 `,
+        lockedLines: 0,
+      },
+      {
+        name: 'index.html',
+        language: 'html',
+        code: `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Document</title>
+  </head>
+  <body>
+    <button class="btn">Click Me</button>
+  </body>
+</html>
+`,
+        lockedLines: 0,
+      },
+    ],
     tests: [
       {
         id: 'sample-css-btn-t1',
@@ -177,20 +211,7 @@ export const sampleChallenges = [
     title: 'Build a Card Component',
     language: 'css',
     difficulty: 'intermediate',
-    fixtureHtml: `<div class="card">
-  <h2 class="card-title">Card Title</h2>
-  <p class="card-body">Some card content goes here. Cards are a staple of modern UI design.</p>
-</div>`,
     description: `Cards are one of the most common UI patterns. Style the provided markup into a clean, elevated card.
-
-### The HTML structure (provided for you)
-
-\`\`\`html
-<div class="card">
-  <h2 class="card-title">Card Title</h2>
-  <p class="card-body">Some card content goes here.</p>
-</div>
-\`\`\`
 
 ### Requirements
 
@@ -206,7 +227,11 @@ export const sampleChallenges = [
 - \`box-shadow: 0 2px 8px rgba(0,0,0,0.1)\` is a classic subtle shadow
 - \`font-size\` accepts values like \`px\`, \`rem\`, or \`em\`
 `,
-    starterCode: `/* Style the card container */
+    files: [
+      {
+        name: 'styles.css',
+        language: 'css',
+        code: `/* Style the card container */
 .card {
 
 }
@@ -221,6 +246,30 @@ export const sampleChallenges = [
 
 }
 `,
+        lockedLines: 0,
+      },
+      {
+        name: 'index.html',
+        language: 'html',
+        code: `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="card">
+      <h2 class="card-title">Card Title</h2>
+      <p class="card-body">Some card content goes here. Cards are a staple of modern UI design.</p>
+    </div>
+  </body>
+</html>
+`,
+        lockedLines: 0,
+      },
+    ],
     tests: [
       {
         id: 'sample-css-card-t1',
@@ -276,24 +325,7 @@ export const sampleChallenges = [
     title: 'Three-Column Grid Layout',
     language: 'css',
     difficulty: 'intermediate',
-    fixtureHtml: `<div class="grid-container">
-  <div class="grid-item">One</div>
-  <div class="grid-item">Two</div>
-  <div class="grid-item">Three</div>
-  <div class="grid-item">Four</div>
-  <div class="grid-item">Five</div>
-  <div class="grid-item">Six</div>
-</div>`,
     description: `Use CSS Grid to lay out six items in a three-column grid with spacing between them.
-
-### The HTML structure (provided for you)
-
-\`\`\`html
-<div class="grid-container">
-  <div class="grid-item">One</div>
-  ...
-</div>
-\`\`\`
 
 ### Requirements
 
@@ -309,7 +341,11 @@ export const sampleChallenges = [
 - \`gap: 16px\` sets space between both rows and columns
 - \`fr\` stands for "fraction of available space"
 `,
-    starterCode: `/* Style the grid container */
+    files: [
+      {
+        name: 'styles.css',
+        language: 'css',
+        code: `/* Style the grid container */
 .grid-container {
 
 }
@@ -319,6 +355,34 @@ export const sampleChallenges = [
 
 }
 `,
+        lockedLines: 0,
+      },
+      {
+        name: 'index.html',
+        language: 'html',
+        code: `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="grid-container">
+      <div class="grid-item">One</div>
+      <div class="grid-item">Two</div>
+      <div class="grid-item">Three</div>
+      <div class="grid-item">Four</div>
+      <div class="grid-item">Five</div>
+      <div class="grid-item">Six</div>
+    </div>
+  </body>
+</html>
+`,
+        lockedLines: 0,
+      },
+    ],
     tests: [
       {
         id: 'sample-css-grid-t1',
@@ -333,7 +397,7 @@ export const sampleChallenges = [
         description: '.grid-container has exactly 3 columns',
         assertion: `
           const cols = getComputedStyle(container.querySelector('.grid-container')).gridTemplateColumns;
-          return cols.trim().split(/\s+/).length === 3;
+          return cols.trim().split(/\\s+/).length === 3;
         `,
         failureMessage: 'Set grid-template-columns to 3 columns, e.g. repeat(3, 1fr).',
       },
@@ -372,22 +436,7 @@ export const sampleChallenges = [
     title: 'CSS Custom Properties Theme',
     language: 'css',
     difficulty: 'advanced',
-    fixtureHtml: `<div class="themed">
-  <h2 class="themed-heading">Themed Component</h2>
-  <p class="themed-text">This card uses CSS custom properties for consistent theming.</p>
-  <button class="themed-btn">Click Me</button>
-</div>`,
     description: `Use CSS custom properties (variables) to build a consistently themed component. Define reusable values once on \`:root\` and reference them throughout your styles.
-
-### The HTML structure (provided for you)
-
-\`\`\`html
-<div class="themed">
-  <h2 class="themed-heading">Themed Component</h2>
-  <p class="themed-text">...</p>
-  <button class="themed-btn">Click Me</button>
-</div>
-\`\`\`
 
 ### Requirements
 
@@ -403,7 +452,11 @@ export const sampleChallenges = [
 - Use them with \`var()\`: \`background: var(--primary-color)\`
 - Define them on \`:root\` so they are available anywhere in the document
 `,
-    starterCode: `/* Define your CSS custom properties */
+    files: [
+      {
+        name: 'styles.css',
+        language: 'css',
+        code: `/* Define your CSS custom properties */
 :root {
 
 }
@@ -418,6 +471,31 @@ export const sampleChallenges = [
 
 }
 `,
+        lockedLines: 0,
+      },
+      {
+        name: 'index.html',
+        language: 'html',
+        code: `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="themed">
+      <h2 class="themed-heading">Themed Component</h2>
+      <p class="themed-text">This card uses CSS custom properties for consistent theming.</p>
+      <button class="themed-btn">Click Me</button>
+    </div>
+  </body>
+</html>
+`,
+        lockedLines: 0,
+      },
+    ],
     tests: [
       {
         id: 'sample-css-vars-t1',
@@ -470,30 +548,7 @@ export const sampleChallenges = [
     title: 'Style Form Inputs',
     language: 'css',
     difficulty: 'advanced',
-    fixtureHtml: `<form class="styled-form">
-  <label class="field-label" for="name">Name</label>
-  <input class="field-input" id="name" type="text" placeholder="Your name" />
-  <label class="field-label" for="email">Email</label>
-  <input class="field-input" id="email" type="email" placeholder="you@example.com" />
-  <label class="field-label" for="msg">Message</label>
-  <textarea class="field-input" id="msg" rows="3" placeholder="Your message"></textarea>
-  <button class="field-btn" type="submit">Send</button>
-</form>`,
     description: `Create a polished, consistent form design by styling its inputs, labels, and submit button.
-
-### The HTML structure (provided for you)
-
-\`\`\`html
-<form class="styled-form">
-  <label class="field-label" for="name">Name</label>
-  <input class="field-input" id="name" type="text" ... />
-  <label class="field-label" for="email">Email</label>
-  <input class="field-input" id="email" type="email" ... />
-  <label class="field-label" for="msg">Message</label>
-  <textarea class="field-input" ...></textarea>
-  <button class="field-btn" type="submit">Send</button>
-</form>
-\`\`\`
 
 ### Requirements
 
@@ -503,7 +558,11 @@ export const sampleChallenges = [
 4. \`.field-input\` must have **at least 8px padding** vertically and horizontally
 5. \`.field-btn\` must have a **colored background** and **white text**
 `,
-    starterCode: `/* Stack the form fields vertically */
+    files: [
+      {
+        name: 'styles.css',
+        language: 'css',
+        code: `/* Stack the form fields vertically */
 .styled-form {
 
 }
@@ -523,6 +582,35 @@ export const sampleChallenges = [
 
 }
 `,
+        lockedLines: 0,
+      },
+      {
+        name: 'index.html',
+        language: 'html',
+        code: `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Document</title>
+  </head>
+  <body>
+    <form class="styled-form">
+      <label class="field-label" for="name">Name</label>
+      <input class="field-input" id="name" type="text" placeholder="Your name" />
+      <label class="field-label" for="email">Email</label>
+      <input class="field-input" id="email" type="email" placeholder="you@example.com" />
+      <label class="field-label" for="msg">Message</label>
+      <textarea class="field-input" id="msg" rows="3" placeholder="Your message"></textarea>
+      <button class="field-btn" type="submit">Send</button>
+    </form>
+  </body>
+</html>
+`,
+        lockedLines: 0,
+      },
+    ],
     tests: [
       {
         id: 'sample-css-inputs-t1',
@@ -602,19 +690,27 @@ Your HTML must include:
 
 Feel free to add extra links, styling attributes, or additional content — as long as the above structure is present.
 `,
-    starterCode: `<!DOCTYPE html>
+    files: [
+      {
+        name: 'index.html',
+        language: 'html',
+        code: `<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Navigation Bar</title>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Bar</title>
+  </head>
+  <body>
 
-  <!-- Build your navigation bar here -->
+    <!-- Build your navigation bar here -->
 
-</body>
+  </body>
 </html>
 `,
+        lockedLines: 0,
+      },
+    ],
     tests: [
       {
         id: 'sample-html-nav-t1',
@@ -690,19 +786,27 @@ Your HTML must include:
 
 Feel free to add labels, placeholders, fieldsets, or styling — as long as all required elements are present.
 `,
-    starterCode: `<!DOCTYPE html>
+    files: [
+      {
+        name: 'index.html',
+        language: 'html',
+        code: `<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Contact Form</title>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Form</title>
+  </head>
+  <body>
 
-  <!-- Build your contact form here -->
+    <!-- Build your contact form here -->
 
-</body>
+  </body>
 </html>
 `,
+        lockedLines: 0,
+      },
+    ],
     tests: [
       {
         id: 'sample-html-form-t1',
@@ -773,19 +877,27 @@ Your HTML must include:
 
 Feel free to add more content, sections, or styling — just keep the required elements in place.
 `,
-    starterCode: `<!DOCTYPE html>
+    files: [
+      {
+        name: 'index.html',
+        language: 'html',
+        code: `<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Blog Post</title>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Post</title>
+  </head>
+  <body>
 
-  <!-- Build your semantic blog post here -->
+    <!-- Build your semantic blog post here -->
 
-</body>
+  </body>
 </html>
 `,
+        lockedLines: 0,
+      },
+    ],
     tests: [
       {
         id: 'sample-html-article-t1',
@@ -858,19 +970,27 @@ Feel free to add more content, sections, or styling — just keep the required e
 
 Use any subject you like — sales figures, a schedule, student grades, etc.
 `,
-    starterCode: `<!DOCTYPE html>
+    files: [
+      {
+        name: 'index.html',
+        language: 'html',
+        code: `<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Data Table</title>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Table</title>
+  </head>
+  <body>
 
-  <!-- Build your data table here -->
+    <!-- Build your data table here -->
 
-</body>
+  </body>
 </html>
 `,
+        lockedLines: 0,
+      },
+    ],
     tests: [
       {
         id: 'sample-html-table-t1',
@@ -937,19 +1057,27 @@ Use any subject you like — sales figures, a schedule, student grades, etc.
 </form>
 \`\`\`
 `,
-    starterCode: `<!DOCTYPE html>
+    files: [
+      {
+        name: 'index.html',
+        language: 'html',
+        code: `<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Registration Form</title>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+  </head>
+  <body>
 
-  <!-- Build your accessible registration form here -->
+    <!-- Build your accessible registration form here -->
 
-</body>
+  </body>
 </html>
 `,
+        lockedLines: 0,
+      },
+    ],
     tests: [
       {
         id: 'sample-html-a11y-t1',
@@ -1029,19 +1157,27 @@ Use any subject you like — sales figures, a schedule, student grades, etc.
 <time datetime="2025-06-01">June 1, 2025</time>
 \`\`\`
 `,
-    starterCode: `<!DOCTYPE html>
+    files: [
+      {
+        name: 'index.html',
+        language: 'html',
+        code: `<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Media Page</title>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Page</title>
+  </head>
+  <body>
 
-  <!-- Build your semantic media page here -->
+    <!-- Build your semantic media page here -->
 
-</body>
+  </body>
 </html>
 `,
+        lockedLines: 0,
+      },
+    ],
     tests: [
       {
         id: 'sample-html-fig-t1',
@@ -1079,7 +1215,7 @@ Use any subject you like — sales figures, a schedule, student grades, etc.
         description: '<time> element has a valid datetime attribute (YYYY-MM-DD)',
         assertion: `
           const t = document.querySelector('time[datetime]');
-          return t !== null && /^\d{4}-\d{2}-\d{2}/.test(t.getAttribute('datetime'));
+          return t !== null && /^\\d{4}-\\d{2}-\\d{2}/.test(t.getAttribute('datetime'));
         `,
         failureMessage: 'Add a <time datetime="YYYY-MM-DD"> element to mark a date.',
       },
@@ -1106,10 +1242,17 @@ reverse_string("a")       # → "a"
 - Python strings support slicing: \`s[::-1]\` returns the string reversed
 - You can also use \`"".join(reversed(s))\`
 `,
-    starterCode: `def reverse_string(s):
+    files: [
+      {
+        name: 'app.py',
+        language: 'python',
+        code: `def reverse_string(s):
     # Your code here
     pass
 `,
+        lockedLines: 0,
+      },
+    ],
     tests: [
       {
         id: 'sample-py-reverse-t1',
@@ -1165,10 +1308,17 @@ filter_even([])               # → []
 - List comprehensions make this concise: \`[x for x in numbers if x % 2 == 0]\`
 - \`0\` is considered even
 `,
-    starterCode: `def filter_even(numbers):
+    files: [
+      {
+        name: 'app.py',
+        language: 'python',
+        code: `def filter_even(numbers):
     # Return a list of only the even numbers
     pass
 `,
+        lockedLines: 0,
+      },
+    ],
     tests: [
       {
         id: 'sample-py-filter-t1',
@@ -1223,10 +1373,17 @@ char_count("aaa")     # → {"a": 3}
 - \`collections.Counter\` does this in one line if you want a challenge!
 - Every character (including spaces) should be counted
 `,
-    starterCode: `def char_count(s):
+    files: [
+      {
+        name: 'app.py',
+        language: 'python',
+        code: `def char_count(s):
     # Return a dict mapping each character to its count
     pass
 `,
+        lockedLines: 0,
+      },
+    ],
     tests: [
       {
         id: 'sample-py-char-t1',
@@ -1283,10 +1440,17 @@ word_frequency("")                    # → {}
 - \`str.split()\` splits on whitespace
 - Use \`dict.get(key, 0)\` to safely increment a count
 `,
-    starterCode: `def word_frequency(sentence):
+    files: [
+      {
+        name: 'app.py',
+        language: 'python',
+        code: `def word_frequency(sentence):
     # Return a dict of word: count (case-insensitive)
     pass
 `,
+        lockedLines: 0,
+      },
+    ],
     tests: [
       {
         id: 'sample-py-wf-t1',
@@ -1342,10 +1506,17 @@ caesar_cipher("abc", -1)    # → "zab"   (negative shift)
 - Uppercase: A=65…Z=90, Lowercase: a=97…z=122
 - \`(ord(c) - base + shift) % 26 + base\` handles wrapping for both directions
 `,
-    starterCode: `def caesar_cipher(text, shift):
+    files: [
+      {
+        name: 'app.py',
+        language: 'python',
+        code: `def caesar_cipher(text, shift):
     # Shift each letter by 'shift' positions, wrap around the alphabet
     pass
 `,
+        lockedLines: 0,
+      },
+    ],
     tests: [
       {
         id: 'sample-py-caesar-t1',
@@ -1403,10 +1574,17 @@ is_balanced("{")        # → False  (unclosed)
 - If a closing bracket doesn't match the top of the stack, return \`False\`
 - At the end, the stack must be empty (no unclosed brackets)
 `,
-    starterCode: `def is_balanced(s):
+    files: [
+      {
+        name: 'app.py',
+        language: 'python',
+        code: `def is_balanced(s):
     # Return True if all brackets are properly matched and nested
     pass
 `,
+        lockedLines: 0,
+      },
+    ],
     tests: [
       {
         id: 'sample-py-brackets-t1',
@@ -1460,13 +1638,20 @@ add(0, 0)   // → 0
 - Inputs will always be finite numbers
 - No need to handle non-numeric inputs
 `,
-    starterCode: `// Do not rename this function
+    files: [
+      {
+        name: 'app.js',
+        language: 'javascript',
+        code: `// Do not rename this function
 function add(a, b) {
   // Your code here
 }
 
 exports.add = add;
 `,
+        lockedLines: 2,
+      },
+    ],
     tests: [
       {
         id: 'sample-add-t1',
@@ -1509,13 +1694,20 @@ findMax([])                    // → null
 - The array will only contain numbers
 - Do not use \`Math.max(...arr)\` — implement the logic with a loop
 `,
-    starterCode: `// Do not rename this function
+    files: [
+      {
+        name: 'app.js',
+        language: 'javascript',
+        code: `// Do not rename this function
 function findMax(arr) {
   // Your code here
 }
 
 exports.findMax = findMax;
 `,
+        lockedLines: 2,
+      },
+    ],
     tests: [
       {
         id: 'sample-js-max-t1',
@@ -1567,13 +1759,20 @@ isPalindrome("Madam")    // → true
 isPalindrome("A")        // → true
 \`\`\`
 `,
-    starterCode: `// Do not rename this function
+    files: [
+      {
+        name: 'app.js',
+        language: 'javascript',
+        code: `// Do not rename this function
 function isPalindrome(str) {
   // Your code here
 }
 
 exports.isPalindrome = isPalindrome;
 `,
+        lockedLines: 2,
+      },
+    ],
     tests: [
       {
         id: 'sample-pal-t1',
@@ -1620,13 +1819,20 @@ fizzBuzz(5) // → ["1", "2", "Fizz", "4", "Buzz"]
 fizzBuzz(15) // → ["1","2","Fizz","4","Buzz","Fizz","7","8","Fizz","Buzz","11","Fizz","13","14","FizzBuzz"]
 \`\`\`
 `,
-    starterCode: `// Do not rename this function
+    files: [
+      {
+        name: 'app.js',
+        language: 'javascript',
+        code: `// Do not rename this function
 function fizzBuzz(n) {
   // Your code here
 }
 
 exports.fizzBuzz = fizzBuzz;
 `,
+        lockedLines: 2,
+      },
+    ],
     tests: [
       {
         id: 'sample-fizz-t1',
@@ -1675,13 +1881,20 @@ flatten([])                        // → []
 - Do not use \`Array.prototype.flat()\` — implement the recursion yourself
 - The array may be nested to arbitrary depth
 `,
-    starterCode: `// Do not rename this function
+    files: [
+      {
+        name: 'app.js',
+        language: 'javascript',
+        code: `// Do not rename this function
 function flatten(arr) {
   // Your code here
 }
 
 exports.flatten = flatten;
 `,
+        lockedLines: 2,
+      },
+    ],
     tests: [
       {
         id: 'sample-js-flatten-t1',
@@ -1750,13 +1963,20 @@ groupBy([], 'type')  // → {}
 - Check if the key already exists in the accumulator before pushing
 - Items within each group should stay in their original order
 `,
-    starterCode: `// Do not rename this function
+    files: [
+      {
+        name: 'app.js',
+        language: 'javascript',
+        code: `// Do not rename this function
 function groupBy(arr, key) {
   // Your code here
 }
 
 exports.groupBy = groupBy;
 `,
+        lockedLines: 2,
+      },
+    ],
     tests: [
       {
         id: 'sample-js-groupby-t1',

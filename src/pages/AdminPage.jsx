@@ -5,44 +5,8 @@ import useChallenges from '../hooks/useChallenges'
 import CodeEditor from '../components/CodeEditor'
 import TestItem from '../components/TestItem'
 import { DIFFICULTIES, difficultyLabel } from '../utils/difficultyBadge'
-
-const DEFAULT_STARTERS = {
-  javascript: `// Do not rename this function
-function solution(/* params */) {
-  // Your code here
-}
-
-exports.solution = solution;
-`,
-  html: `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>My Page</title>
-</head>
-<body>
-  <!-- Write your HTML here -->
-
-</body>
-</html>
-`,
-  css: `/* Write your CSS here */
-
-`,
-  python: `def solution(params):
-    # Your code here
-    pass
-`,
-}
-
-const DEFAULT_FIXTURE_HTML = {
-  css: `<div class="wrapper">
-  <div class="card">
-    <h1>Hello World</h1>
-    <p>Some paragraph text.</p>
-  </div>
-</div>`,
-}
+import { createDefaultFile, languageFromFilename, MAX_FILES, DEFAULT_FILE_CODE } from '../utils/fileDefaults'
+import { langBadgeClass, langDisplayName } from '../utils/langBadge'
 
 const ASSERTION_HINTS = {
   javascript: 'return exports.myFn(args) === expectedValue;',
@@ -58,8 +22,7 @@ function emptyChallenge() {
     language: 'javascript',
     difficulty: 'beginner',
     description: '',
-    starterCode: DEFAULT_STARTERS.javascript,
-    fixtureHtml: '',
+    files: [createDefaultFile('javascript')],
     tests: [],
   }
 }
@@ -86,19 +49,60 @@ export default function AdminPage() {
     setSaveStatus('idle')
   }
 
-  // When language changes, swap starter code and fixture HTML if still at defaults
+  // When language changes, swap files if still at defaults
   const handleLanguageChange = (newLang) => {
     setForm(prev => {
-      const isStarterDefault = Object.values(DEFAULT_STARTERS).includes(prev.starterCode)
-      const isFixtureDefault = !prev.fixtureHtml || Object.values(DEFAULT_FIXTURE_HTML).includes(prev.fixtureHtml)
+      const isDefault = prev.files.length === 1
+        && DEFAULT_FILE_CODE[prev.language] === prev.files[0].code
       return {
         ...prev,
         language: newLang,
-        starterCode: isStarterDefault ? (DEFAULT_STARTERS[newLang] ?? prev.starterCode) : prev.starterCode,
-        fixtureHtml: isFixtureDefault ? (DEFAULT_FIXTURE_HTML[newLang] ?? '') : prev.fixtureHtml,
+        files: isDefault ? [createDefaultFile(newLang)] : prev.files,
       }
     })
     setSaveStatus('idle')
+  }
+
+  // ── File management ─────────────────────────────────────
+  const addFile = (fileLanguage) => {
+    if (form.files.length >= MAX_FILES) {
+      alert(`Maximum ${MAX_FILES} files per challenge.`)
+      return
+    }
+    const newFile = createDefaultFile(fileLanguage)
+    // Avoid name collisions
+    const existingNames = new Set(form.files.map(f => f.name))
+    if (existingNames.has(newFile.name)) {
+      let counter = 2
+      const dot = newFile.name.lastIndexOf('.')
+      const base = dot > 0 ? newFile.name.slice(0, dot) : newFile.name
+      const ext = dot > 0 ? newFile.name.slice(dot) : ''
+      while (existingNames.has(`${base} (${counter})${ext}`)) counter++
+      newFile.name = `${base} (${counter})${ext}`
+    }
+    update('files', [...form.files, newFile])
+  }
+
+  const updateFile = (index, field, value) => {
+    update('files', form.files.map((f, i) => i === index ? { ...f, [field]: value } : f))
+  }
+
+  const deleteFile = (index) => {
+    if (form.files.length <= 1) {
+      alert('Challenge must have at least one file.')
+      return
+    }
+    update('files', form.files.filter((_, i) => i !== index))
+  }
+
+  const renameFile = (index, newName) => {
+    if (!newName.trim()) return
+    const existing = form.files.map((f, i) => i !== index ? f.name : null).filter(Boolean)
+    if (existing.includes(newName.trim())) return
+    const language = languageFromFilename(newName.trim())
+    update('files', form.files.map((f, i) =>
+      i === index ? { ...f, name: newName.trim(), language } : f
+    ))
   }
 
   const addTest = () => {
@@ -131,15 +135,6 @@ export default function AdminPage() {
 
   const isEditing = Boolean(id || form.id)
   const lang = form.language
-  const isCss = lang === 'css'
-  const isPython = lang === 'python'
-
-  const starterSubtitle = {
-    javascript: <span>Use <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded text-xs">exports.fnName = fnName</code> to expose functions to tests</span>,
-    html: 'Write the HTML the student will start with',
-    css: 'Write the CSS the student will start with',
-    python: 'Define functions the tests will call directly',
-  }[lang] ?? null
 
   const testsSubtitle = {
     css: <span>Assertions receive <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded text-xs">container</code> and <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded text-xs">getComputedStyle</code></span>,
@@ -214,29 +209,68 @@ export default function AdminPage() {
           />
         </Section>
 
-        {/* ── Fixture HTML (CSS only) ─────────────────────────── */}
-        {isCss && (
-          <Section
-            title="Fixture HTML"
-            subtitle="The HTML structure the student's CSS will be applied to. Students see this rendered in the Preview tab."
-          >
-            <CodeEditor
-              value={form.fixtureHtml || ''}
-              onChange={val => update('fixtureHtml', val)}
-              height="180px"
-              language="html"
-            />
-          </Section>
-        )}
-
-        {/* ── Starter Code ───────────────────────────────────── */}
-        <Section title="Starter Code" subtitle={starterSubtitle}>
-          <CodeEditor
-            value={form.starterCode}
-            onChange={val => update('starterCode', val)}
-            height="220px"
-            language={lang}
-          />
+        {/* ── Files ───────────────────────────────────────────── */}
+        <Section
+          title="Files"
+          subtitle="Each file has its own code editor. Students see file tabs in the Code panel."
+          action={
+            form.files.length < MAX_FILES && (
+              <select
+                onChange={e => { if (e.target.value) { addFile(e.target.value); e.target.value = '' } }}
+                className={`${inputClass} w-auto text-sm`}
+                defaultValue=""
+              >
+                <option value="" disabled>+ Add File…</option>
+                <option value="javascript">JavaScript (.js)</option>
+                <option value="html">HTML (.html)</option>
+                <option value="css">CSS (.css)</option>
+                <option value="python">Python (.py)</option>
+              </select>
+            )
+          }
+        >
+          {form.files.map((file, i) => (
+            <div key={i} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+              {/* File header */}
+              <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
+                <input
+                  type="text"
+                  value={file.name}
+                  onChange={e => renameFile(i, e.target.value)}
+                  className="text-sm font-mono bg-transparent border-none outline-none text-gray-900 dark:text-white flex-1 min-w-0"
+                />
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${langBadgeClass(file.language)}`}>
+                  {langDisplayName(file.language)}
+                </span>
+                {file.language === 'javascript' && (
+                  <label className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={file.lockedLines > 0}
+                      onChange={e => updateFile(i, 'lockedLines', e.target.checked ? 2 : 0)}
+                    />
+                    Lock exports
+                  </label>
+                )}
+                {form.files.length > 1 && (
+                  <button
+                    onClick={() => deleteFile(i)}
+                    className="text-xs text-gray-400 hover:text-red-600 dark:hover:text-red-400 px-2 py-1 rounded"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+              {/* Code editor for this file */}
+              <CodeEditor
+                value={file.code}
+                onChange={val => updateFile(i, 'code', val)}
+                height="200px"
+                language={file.language}
+                className="rounded-none"
+              />
+            </div>
+          ))}
         </Section>
 
         {/* ── Tests ──────────────────────────────────────────── */}

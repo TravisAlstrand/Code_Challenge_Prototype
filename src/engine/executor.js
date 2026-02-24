@@ -2,7 +2,8 @@
  * Challenge execution engine.
  *
  * Dispatches to a language-specific executor based on challenge.language.
- * Each executor returns (or resolves to) the same shape:
+ * Each executor receives a `files` map ({ [filename]: codeString }) and
+ * returns (or resolves to) the same shape:
  *   { success: boolean, results: Array, error: string|null }
  *
  * Adding a new language: implement an executeXxx function below and add it
@@ -11,12 +12,53 @@
 
 import { getPyodide } from './pythonRuntime'
 
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+function filesByExt(files, ext) {
+  return Object.entries(files).filter(([name]) =>
+    name.toLowerCase().endsWith(ext)
+  )
+}
+
+/** Extract innerHTML of <body> from a full HTML document string. */
+function extractBodyContent(html) {
+  const match = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i)
+  return match ? match[1].trim() : html
+}
+
+/**
+ * Resolves <link href="file.css"> and <script src="file.js"> references
+ * in an HTML string by inlining the matching file contents.
+ */
+function resolveFileReferences(html, filesMap) {
+  html = html.replace(/<link\s+[^>]*href="([^"]+)"[^>]*\/?>/gi, (match, href) => {
+    const code = filesMap[href]
+    if (code !== undefined) return `<style>${code}</style>`
+    return match
+  })
+
+  html = html.replace(/<script\s+[^>]*src="([^"]+)"[^>]*><\/script>/gi, (match, src) => {
+    const code = filesMap[src]
+    if (code !== undefined) return `<script>${code}</script>`
+    return match
+  })
+
+  return html
+}
+
 // ─── JavaScript ────────────────────────────────────────────────────────────────
 
-function executeJavaScript(code, tests) {
+function executeJavaScript(files, tests) {
+  const jsFiles = filesByExt(files, '.js')
+  if (jsFiles.length === 0) {
+    return { success: false, results: [], error: 'No JavaScript file found in this challenge.' }
+  }
+
   const exports = {}
 
   try {
+    // Use the first .js file as the primary file with exports
+    const code = jsFiles[0][1]
     const userFn = new Function('exports', code)
     userFn(exports)
   } catch (err) {
@@ -31,30 +73,47 @@ function executeJavaScript(code, tests) {
 
 // ─── HTML ──────────────────────────────────────────────────────────────────────
 
-function executeHtml(code, tests) {
-  let doc
+function executeHtml(files, tests) {
+  const htmlFiles = filesByExt(files, '.html').concat(filesByExt(files, '.htm'))
 
+  let doc = htmlFiles.length > 0 ? htmlFiles[0][1] : '<html><body></body></html>'
+
+  // Resolve <link href> and <script src> references to inline content
+  doc = resolveFileReferences(doc, files)
+
+  let parsedDoc
   try {
     const parser = new DOMParser()
-    doc = parser.parseFromString(code, 'text/html')
+    parsedDoc = parser.parseFromString(doc, 'text/html')
   } catch (err) {
     return { success: false, results: [], error: `Parse Error: ${err.message}` }
   }
 
   return runTests(tests, (assertion) => {
     const testFn = new Function('document', assertion)
-    return testFn(doc)
+    return testFn(parsedDoc)
   })
 }
 
-// ─── CSS ───────────────────────────────────────────────────────────────────────
+// ─── CSS ───────────────────────────────────────────────────────────────────
 //
 // Injects the fixture HTML + student CSS into a hidden off-screen container
 // attached to the real document so the browser computes styles properly.
 // Assertions receive `container` (the root element) and `getComputedStyle`.
 // The container is always removed after tests finish.
 
-function executeCss(code, tests, { fixtureHtml = '' } = {}) {
+function executeCss(files, tests) {
+  const cssFiles = filesByExt(files, '.css')
+  const htmlFiles = filesByExt(files, '.html').concat(filesByExt(files, '.htm'))
+
+  const cssCode = cssFiles.map(([, code]) => code).join('\n')
+
+  // Extract body content from the HTML file as fixture
+  let fixtureHtml = ''
+  if (htmlFiles.length > 0) {
+    fixtureHtml = extractBodyContent(htmlFiles[0][1])
+  }
+
   const container = document.createElement('div')
 
   // Off-screen but attached to the DOM so getComputedStyle works correctly.
@@ -71,7 +130,7 @@ function executeCss(code, tests, { fixtureHtml = '' } = {}) {
   container.innerHTML = fixtureHtml
 
   const styleEl = document.createElement('style')
-  styleEl.textContent = code
+  styleEl.textContent = cssCode
   container.appendChild(styleEl)
 
   document.body.appendChild(container)
@@ -96,7 +155,14 @@ function executeCss(code, tests, { fixtureHtml = '' } = {}) {
 // Test assertions are plain Python expressions that evaluate to True/False.
 // Example:  reverse_string("hello") == "olleh"
 
-async function executePython(code, tests) {
+async function executePython(files, tests) {
+  const pyFiles = filesByExt(files, '.py')
+  if (pyFiles.length === 0) {
+    return { success: false, results: [], error: 'No Python file found in this challenge.' }
+  }
+
+  const code = pyFiles[0][1]
+
   let pyodide
   try {
     pyodide = await getPyodide()
@@ -147,13 +213,12 @@ const EXECUTORS = {
 }
 
 /**
- * @param {string} language    - challenge.language
- * @param {string} code        - student's submitted code
+ * @param {string} language    - challenge.language (primary/test language)
+ * @param {Object} files       - { [filename]: codeString } map of all files
  * @param {Array}  tests       - array of { id, description, assertion, failureMessage }
- * @param {Object} options     - extra per-language context (e.g. fixtureHtml for CSS)
  * @returns {Promise<{ success: boolean, results: Array, error: string|null }>}
  */
-export async function executeChallenge(language, code, tests, options = {}) {
+export async function executeChallenge(language, files, tests) {
   const executor = EXECUTORS[language?.toLowerCase()]
 
   if (!executor) {
@@ -164,7 +229,7 @@ export async function executeChallenge(language, code, tests, options = {}) {
     }
   }
 
-  return executor(code, tests, options)
+  return executor(files, tests)
 }
 
 // ─── Shared test runner ────────────────────────────────────────────────────────

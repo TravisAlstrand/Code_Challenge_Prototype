@@ -1,33 +1,76 @@
 import { useMemo } from 'react'
 
 /**
- * Builds a full HTML document string to load into the preview iframe.
+ * Resolves <link href="file.css"> and <script src="file.js"> references
+ * in an HTML string by inlining the matching file contents. Only files
+ * that exist in the filesMap are resolved — everything else is left as-is.
  *
- * javascript — wraps code in a minimal shell that captures console.log / console.error
- *              output and renders it visually, similar to a browser DevTools console.
- * html        — uses the student's code as the full document.
- * css         — merges the challenge's fixture HTML with the student's stylesheet.
+ * This mimics real-world file linking: files must be explicitly referenced
+ * in the HTML via <link> or <script src> to be included.
  */
-function buildDocument(code, language, fixtureHtml = '') {
-  switch (language) {
-    case 'html':
-      return code || '<p style="color:#888;font-family:sans-serif;padding:16px">Nothing to preview yet.</p>'
+function resolveFileReferences(html, filesMap) {
+  // <link ... href="filename.css" ...>  →  <style>content</style>
+  html = html.replace(/<link\s+[^>]*href="([^"]+)"[^>]*\/?>/gi, (match, href) => {
+    const code = filesMap[href]
+    if (code !== undefined) return `<style>\n${code}\n</style>`
+    return match
+  })
 
-    case 'css': {
-      const base = fixtureHtml || '<h1>Heading</h1><p>Paragraph text.</p><button>Button</button>'
-      return `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8" />
-  <style>${code}</style>
-</head>
-<body>${base}</body>
-</html>`
-    }
+  // <script src="filename.js"></script>  →  <script>content</script>
+  html = html.replace(/<script\s+[^>]*src="([^"]+)"[^>]*><\/script>/gi, (match, src) => {
+    const code = filesMap[src]
+    if (code !== undefined) return `<script>\n${code}\n</script>`
+    return match
+  })
 
-    case 'javascript':
-    default:
-      return `<!DOCTYPE html>
+  return html
+}
+
+/**
+ * Builds a full HTML document string from all challenge files.
+ *
+ * Files are linked realistically: the HTML file must contain <link> and
+ * <script src> tags referencing other files by name. Those references are
+ * resolved to inline content for the iframe preview.
+ *
+ * If no HTML file exists and the primary language is JS, the console-capture
+ * shell is used instead.
+ */
+function buildDocument(files, language) {
+  const htmlFiles = []
+  const jsFiles = []
+
+  for (const [name, code] of Object.entries(files)) {
+    const ext = name.split('.').pop()?.toLowerCase()
+    if (ext === 'html' || ext === 'htm') htmlFiles.push({ name, code })
+    else if (ext === 'js') jsFiles.push({ name, code })
+  }
+
+  // Python-only challenges
+  if (language === 'python') {
+    return '<p style="color:#888;font-family:sans-serif;padding:16px">Python challenges don\'t have a preview. Submit to run tests.</p>'
+  }
+
+  // JS-only (no HTML file) — use the console-capture shell
+  if (language === 'javascript' && htmlFiles.length === 0) {
+    const allJs = jsFiles.map(f => f.code).join('\n')
+    return buildJsConsoleShell(allJs)
+  }
+
+  if (htmlFiles.length === 0) {
+    return '<p style="color:#888;font-family:sans-serif;padding:16px">Nothing to preview yet.</p>'
+  }
+
+  // Resolve <link href> and <script src> references to inline content
+  return resolveFileReferences(htmlFiles[0].code, files)
+}
+
+/**
+ * Builds the JS console-capture shell (same UI as before).
+ * Used when a JS challenge has no HTML file.
+ */
+function buildJsConsoleShell(code) {
+  return `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8" />
@@ -85,7 +128,7 @@ function buildDocument(code, language, fixtureHtml = '') {
 
     const gutter = document.createElement('span')
     gutter.className = 'gutter'
-    gutter.textContent = level === 'error' ? '✕' : level === 'warn' ? '▲' : '›'
+    gutter.textContent = level === 'error' ? '\\u2715' : level === 'warn' ? '\\u25B2' : '\\u203A'
 
     const text = document.createElement('span')
     text.textContent = args.map(serialise).join(' ')
@@ -131,17 +174,16 @@ function buildDocument(code, language, fixtureHtml = '') {
 </script>
 </body>
 </html>`
-  }
 }
 
 /**
- * PreviewFrame receives already-debounced `code` from the parent.
+ * PreviewFrame receives already-debounced `files` from the parent.
  * `isStale` controls the loading overlay — shown while the debounce is pending.
  */
-export default function PreviewFrame({ code, language, fixtureHtml, isStale }) {
+export default function PreviewFrame({ files, language, isStale }) {
   const srcDoc = useMemo(
-    () => buildDocument(code, language, fixtureHtml),
-    [code, language, fixtureHtml]
+    () => buildDocument(files, language),
+    [files, language]
   )
 
   return (

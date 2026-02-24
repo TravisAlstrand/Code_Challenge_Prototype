@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import useChallenges from '../hooks/useChallenges'
 import useDebounce from '../hooks/useDebounce'
@@ -14,29 +14,37 @@ import useProgress from '../hooks/useProgress'
 // Languages that get a Preview tab
 const PREVIEWABLE = ['javascript', 'html', 'css']
 
-const TABS = ['code', 'results', 'preview']
+const TABS = ['code', 'preview', 'results']
 
 export default function StudentChallenge() {
   const { id } = useParams()
   const { getChallengeById } = useChallenges()
 
   const [challenge, setChallenge] = useState(null)
-  const [code, setCode] = useState('')
+  const [files, setFiles] = useState({})          // { [filename]: codeString }
+  const [activeFile, setActiveFile] = useState('') // currently selected file tab
   const [activeTab, setActiveTab] = useState('code')
   const [result, setResult] = useState(null)
   const [running, setRunning] = useState(false)
   const [pythonReady, setPythonReady] = useState(false)
   const { markComplete } = useProgress()
 
-  // Debounced code is what PreviewFrame actually renders
-  const debouncedCode = useDebounce(code, 650)
-  const isPreviewStale = code !== debouncedCode
+  // Debounced files map for preview rendering
+  const debouncedFiles = useDebounce(files, 650)
+  const isPreviewStale = useMemo(
+    () => JSON.stringify(files) !== JSON.stringify(debouncedFiles),
+    [files, debouncedFiles]
+  )
 
   useEffect(() => {
     const c = getChallengeById(id)
     if (c) {
       setChallenge(c)
-      setCode(c.starterCode || '')
+      // Build files map from challenge.files array
+      const fileMap = {}
+      c.files?.forEach(f => { fileMap[f.name] = f.code })
+      setFiles(fileMap)
+      setActiveFile(c.files?.[0]?.name || '')
     }
   }, [id])
 
@@ -81,7 +89,7 @@ export default function StudentChallenge() {
   const handleSubmit = async () => {
     setRunning(true)
     setActiveTab('results')
-    const output = await executeChallenge(challenge.language, code, challenge.tests, { fixtureHtml: challenge.fixtureHtml })
+    const output = await executeChallenge(challenge.language, files, challenge.tests)
     setResult(output)
     if (output.success) markComplete(challenge.id)
     setRunning(false)
@@ -89,7 +97,10 @@ export default function StudentChallenge() {
 
   const handleReset = () => {
     if (window.confirm('Reset your code back to the starter code?')) {
-      setCode(challenge.starterCode || '')
+      const fileMap = {}
+      challenge.files?.forEach(f => { fileMap[f.name] = f.code })
+      setFiles(fileMap)
+      setActiveFile(challenge.files?.[0]?.name || '')
       setResult(null)
     }
   }
@@ -181,15 +192,40 @@ export default function StudentChallenge() {
           <div className="flex-1 relative overflow-hidden">
 
             {/* Code tab */}
-            <div className={`absolute inset-0 ${activeTab === 'code' ? 'block' : 'hidden'}`}>
-              <CodeEditor
-                value={code}
-                onChange={setCode}
-                height="100%"
-                language={challenge.language}
-                className="rounded-b-lg rounded-t-none"
-                lockedLines={challenge.language === 'javascript' ? 2 : 0}
-              />
+            <div className={`absolute inset-0 flex flex-col ${activeTab === 'code' ? 'flex' : 'hidden'}`}>
+              {/* File sub-tabs */}
+              <div className="flex border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800/50 flex-shrink-0 px-2 pt-1">
+                {challenge.files?.map(file => (
+                  <button
+                    key={file.name}
+                    onClick={() => setActiveFile(file.name)}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-t border border-b-0 transition-colors ${
+                      activeFile === file.name
+                        ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-gray-200 dark:border-gray-700'
+                        : 'bg-transparent text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-300'
+                    }`}
+                  >
+                    {file.name}
+                  </button>
+                ))}
+              </div>
+
+              {/* Editor for each file — all stay mounted, hidden via CSS */}
+              {challenge.files?.map(file => (
+                <div
+                  key={file.name}
+                  className={`flex-1 min-h-0 ${activeFile === file.name ? 'block' : 'hidden'}`}
+                >
+                  <CodeEditor
+                    value={files[file.name] || ''}
+                    onChange={val => setFiles(prev => ({ ...prev, [file.name]: val }))}
+                    height="100%"
+                    language={file.language}
+                    className="rounded-none"
+                    lockedLines={file.lockedLines || 0}
+                  />
+                </div>
+              ))}
             </div>
 
             {/* Results tab */}
@@ -211,9 +247,8 @@ export default function StudentChallenge() {
             {hasPreview && (
               <div className={`absolute inset-0 ${activeTab === 'preview' ? 'block' : 'hidden'}`}>
                 <PreviewFrame
-                  code={debouncedCode}
+                  files={debouncedFiles}
                   language={challenge.language}
-                  fixtureHtml={challenge.fixtureHtml}
                   isStale={isPreviewStale}
                 />
               </div>
