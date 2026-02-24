@@ -6,7 +6,8 @@ import CodeEditor from '../components/CodeEditor'
 import TestItem from '../components/TestItem'
 
 const DEFAULT_STARTERS = {
-  javascript: `function solution(/* params */) {
+  javascript: `// Do not rename this function
+function solution(/* params */) {
   // Your code here
 }
 
@@ -193,7 +194,7 @@ export default function AdminPage() {
           <textarea
             value={form.description}
             onChange={e => update('description', e.target.value)}
-            placeholder={`## Challenge Title\n\nDescribe what the student needs to implement.`}
+            placeholder={`Describe what the student needs to implement.`}
             rows={10}
             className={`${inputClass} font-mono text-sm resize-y`}
           />

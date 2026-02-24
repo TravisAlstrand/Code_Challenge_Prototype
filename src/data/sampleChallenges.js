@@ -6,9 +6,7 @@ export const sampleChallenges = [
     fixtureHtml: `<div class="wrapper">
   <div class="card">I'm centered!</div>
 </div>`,
-    description: `## Center Content with Flexbox
-
-Use CSS Flexbox to center a card both **horizontally** and **vertically** inside its wrapper.
+    description: `Use CSS Flexbox to center a card both **horizontally** and **vertically** inside its wrapper.
 
 ### The HTML structure (provided for you)
 
@@ -97,9 +95,7 @@ Use CSS Flexbox to center a card both **horizontally** and **vertically** inside
     title: 'Style a Button',
     language: 'css',
     fixtureHtml: `<button class="btn">Click Me</button>`,
-    description: `## Style a Button
-
-Turn a plain browser button into a polished, clickable UI element using CSS.
+    description: `Turn a plain browser button into a polished, clickable UI element using CSS.
 
 ### The HTML structure (provided for you)
 
@@ -182,9 +178,7 @@ Turn a plain browser button into a polished, clickable UI element using CSS.
   <h2 class="card-title">Card Title</h2>
   <p class="card-body">Some card content goes here. Cards are a staple of modern UI design.</p>
 </div>`,
-    description: `## Build a Card Component
-
-Cards are one of the most common UI patterns. Style the provided markup into a clean, elevated card.
+    description: `Cards are one of the most common UI patterns. Style the provided markup into a clean, elevated card.
 
 ### The HTML structure (provided for you)
 
@@ -278,9 +272,7 @@ Cards are one of the most common UI patterns. Style the provided markup into a c
     id: 'sample-html-nav',
     title: 'Build a Navigation Bar',
     language: 'html',
-    description: `## Build a Navigation Bar
-
-Create a semantic navigation bar using the correct HTML elements.
+    description: `Create a semantic navigation bar using the correct HTML elements.
 
 ### Requirements
 
@@ -361,9 +353,7 @@ Feel free to add extra links, styling attributes, or additional content — as l
     id: 'sample-html-form',
     title: 'Build a Contact Form',
     language: 'html',
-    description: `## Build a Contact Form
-
-Create a semantic HTML contact form that collects a user's name, email, and message.
+    description: `Create a semantic HTML contact form that collects a user's name, email, and message.
 
 ### Requirements
 
@@ -444,9 +434,7 @@ Feel free to add labels, placeholders, fieldsets, or styling — as long as all 
     id: 'sample-html-article',
     title: 'Semantic Blog Post',
     language: 'html',
-    description: `## Semantic Blog Post
-
-Use semantic HTML5 elements to structure a blog post correctly. Semantic HTML improves accessibility and SEO by giving content meaningful structure.
+    description: `Use semantic HTML5 elements to structure a blog post correctly. Semantic HTML improves accessibility and SEO by giving content meaningful structure.
 
 ### Requirements
 
@@ -531,9 +519,7 @@ Feel free to add more content, sections, or styling — just keep the required e
     id: 'sample-py-reverse',
     title: 'Reverse a String',
     language: 'python',
-    description: `## Reverse a String
-
-Write a function \`reverse_string\` that takes a string and returns it reversed.
+    description: `Write a function \`reverse_string\` that takes a string and returns it reversed.
 
 ### Examples
 
@@ -590,9 +576,7 @@ reverse_string("a")       # → "a"
     id: 'sample-py-filter-even',
     title: 'Filter Even Numbers',
     language: 'python',
-    description: `## Filter Even Numbers
-
-Write a function \`filter_even\` that takes a list of integers and returns a new list containing only the even numbers, in the same order.
+    description: `Write a function \`filter_even\` that takes a list of integers and returns a new list containing only the even numbers, in the same order.
 
 ### Examples
 
@@ -650,9 +634,7 @@ filter_even([])               # → []
     id: 'sample-py-char-count',
     title: 'Count Character Occurrences',
     language: 'python',
-    description: `## Count Character Occurrences
-
-Write a function \`char_count\` that takes a string and returns a dictionary mapping each character to the number of times it appears.
+    description: `Write a function \`char_count\` that takes a string and returns a dictionary mapping each character to the number of times it appears.
 
 ### Examples
 
@@ -709,9 +691,7 @@ char_count("aaa")     # → {"a": 3}
     id: 'sample-add',
     title: 'Sum Two Numbers',
     language: 'javascript',
-    description: `## Sum Two Numbers
-
-Write a function \`add\` that takes two numbers and returns their sum.
+    description: `Write a function \`add\` that takes two numbers and returns their sum.
 
 ### Examples
 
@@ -726,7 +706,8 @@ add(0, 0)   // → 0
 - Inputs will always be finite numbers
 - No need to handle non-numeric inputs
 `,
-    starterCode: `function add(a, b) {
+    starterCode: `// Do not rename this function
+function add(a, b) {
   // Your code here
 }
 
@@ -757,9 +738,7 @@ exports.add = add;
     id: 'sample-palindrome',
     title: 'Palindrome Check',
     language: 'javascript',
-    description: `## Palindrome Check
-
-Write a function \`isPalindrome\` that returns \`true\` if the given string reads the same forwards and backwards, \`false\` otherwise.
+    description: `Write a function \`isPalindrome\` that returns \`true\` if the given string reads the same forwards and backwards, \`false\` otherwise.
 
 Ignore case when comparing — \`"Racecar"\` should return \`true\`.
 
@@ -772,7 +751,8 @@ isPalindrome("Madam")    // → true
 isPalindrome("A")        // → true
 \`\`\`
 `,
-    starterCode: `function isPalindrome(str) {
+    starterCode: `// Do not rename this function
+function isPalindrome(str) {
   // Your code here
 }
 
@@ -809,9 +789,7 @@ exports.isPalindrome = isPalindrome;
     id: 'sample-fizzbuzz',
     title: 'FizzBuzz',
     language: 'javascript',
-    description: `## FizzBuzz
-
-Write a function \`fizzBuzz\` that takes a number \`n\` and returns an array of strings from 1 to n where:
+    description: `Write a function \`fizzBuzz\` that takes a number \`n\` and returns an array of strings from 1 to n where:
 
 - Multiples of **3** → \`"Fizz"\`
 - Multiples of **5** → \`"Buzz"\`
@@ -825,7 +803,8 @@ fizzBuzz(5) // → ["1", "2", "Fizz", "4", "Buzz"]
 fizzBuzz(15) // → ["1","2","Fizz","4","Buzz","Fizz","7","8","Fizz","Buzz","11","Fizz","13","14","FizzBuzz"]
 \`\`\`
 `,
-    starterCode: `function fizzBuzz(n) {
+    starterCode: `// Do not rename this function
+function fizzBuzz(n) {
   // Your code here
 }
 

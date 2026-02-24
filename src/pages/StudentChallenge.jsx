@@ -185,6 +185,7 @@ export default function StudentChallenge() {
                 height="100%"
                 language={challenge.language}
                 className="rounded-b-lg rounded-t-none"
+                lockedLines={challenge.language === 'javascript' ? 2 : 0}
               />
             </div>
 

@@ -22,3 +22,14 @@ button, a {
 .cm-scroller {
   overflow: auto;
 }
+
+/* Locked (read-only) lines in the student editor */
+.cm-locked-line {
+  background: rgba(0, 0, 0, 0.04) !important;
+  opacity: 0.6;
+}
+
+.dark .cm-locked-line {
+  background: rgba(255, 255, 255, 0.04) !important;
+  opacity: 0.6;
+}
