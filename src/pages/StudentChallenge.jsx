@@ -184,6 +184,7 @@ export default function StudentChallenge() {
                 onChange={setCode}
                 height="100%"
                 language={challenge.language}
+                className="rounded-b-lg rounded-t-none"
               />
             </div>
 

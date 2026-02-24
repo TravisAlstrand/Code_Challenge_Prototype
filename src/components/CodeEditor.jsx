@@ -16,12 +16,12 @@ function getExtensions(language) {
   }
 }
 
-export default function CodeEditor({ value, onChange, height = '300px', readOnly = false, language = 'javascript' }) {
+export default function CodeEditor({ value, onChange, height = '300px', readOnly = false, language = 'javascript', className = 'rounded-lg' }) {
   const { darkMode } = useTheme()
   const extensions = useMemo(() => getExtensions(language), [language])
 
   return (
-    <div className="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 text-sm">
+    <div className={`${className} overflow-hidden border border-gray-200 dark:border-gray-700 text-sm`}>
       <CodeMirror
         value={value}
         height={height}

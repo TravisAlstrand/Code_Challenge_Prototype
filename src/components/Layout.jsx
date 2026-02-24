@@ -29,8 +29,8 @@ export default function Layout({ children }) {
               to="/"
               className="flex items-center gap-2 font-bold text-lg text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300"
             >
-              <span className="text-xl">⚡</span>
-              CodeChallenge
+              <img src="/favicon.ico" alt="" className="w-6 h-6" />
+              Treehouse Code Challenges
             </Link>
 
             <div className="flex items-center gap-3">
