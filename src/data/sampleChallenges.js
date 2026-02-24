@@ -2,7 +2,7 @@ export const sampleChallenges = [
   {
     id: 'sample-css-flexbox',
     title: 'Center Content with Flexbox',
-    language: 'css',
+    languages: ['html', 'css'],
     difficulty: 'beginner',
     description: `Use CSS Flexbox to center a card both **horizontally** and **vertically** inside its wrapper.
 
@@ -110,7 +110,7 @@ export const sampleChallenges = [
   {
     id: 'sample-css-button',
     title: 'Style a Button',
-    language: 'css',
+    languages: ['html', 'css'],
     difficulty: 'beginner',
     description: `Turn a plain browser button into a polished, clickable UI element using CSS.
 
@@ -209,7 +209,7 @@ export const sampleChallenges = [
   {
     id: 'sample-css-card',
     title: 'Build a Card Component',
-    language: 'css',
+    languages: ['html', 'css'],
     difficulty: 'intermediate',
     description: `Cards are one of the most common UI patterns. Style the provided markup into a clean, elevated card.
 
@@ -323,7 +323,7 @@ export const sampleChallenges = [
   {
     id: 'sample-css-grid',
     title: 'Three-Column Grid Layout',
-    language: 'css',
+    languages: ['html', 'css'],
     difficulty: 'intermediate',
     description: `Use CSS Grid to lay out six items in a three-column grid with spacing between them.
 
@@ -434,7 +434,7 @@ export const sampleChallenges = [
   {
     id: 'sample-css-variables',
     title: 'CSS Custom Properties Theme',
-    language: 'css',
+    languages: ['html', 'css'],
     difficulty: 'advanced',
     description: `Use CSS custom properties (variables) to build a consistently themed component. Define reusable values once on \`:root\` and reference them throughout your styles.
 
@@ -546,7 +546,7 @@ export const sampleChallenges = [
   {
     id: 'sample-css-inputs',
     title: 'Style Form Inputs',
-    language: 'css',
+    languages: ['html', 'css'],
     difficulty: 'advanced',
     description: `Create a polished, consistent form design by styling its inputs, labels, and submit button.
 
@@ -663,7 +663,7 @@ export const sampleChallenges = [
   {
     id: 'sample-html-nav',
     title: 'Build a Navigation Bar',
-    language: 'html',
+    languages: ['html'],
     difficulty: 'beginner',
     description: `Create a semantic navigation bar using the correct HTML elements.
 
@@ -753,7 +753,7 @@ Feel free to add extra links, styling attributes, or additional content — as l
   {
     id: 'sample-html-form',
     title: 'Build a Contact Form',
-    language: 'html',
+    languages: ['html'],
     difficulty: 'beginner',
     description: `Create a semantic HTML contact form that collects a user's name, email, and message.
 
@@ -843,7 +843,7 @@ Feel free to add labels, placeholders, fieldsets, or styling — as long as all 
   {
     id: 'sample-html-article',
     title: 'Semantic Blog Post',
-    language: 'html',
+    languages: ['html'],
     difficulty: 'intermediate',
     description: `Use semantic HTML5 elements to structure a blog post correctly. Semantic HTML improves accessibility and SEO by giving content meaningful structure.
 
@@ -937,7 +937,7 @@ Feel free to add more content, sections, or styling — just keep the required e
   {
     id: 'sample-html-table',
     title: 'Build a Data Table',
-    language: 'html',
+    languages: ['html'],
     difficulty: 'intermediate',
     description: `Create a semantic HTML table to display structured data. Well-formed tables use \`<thead>\`, \`<tbody>\`, \`<caption>\`, and header cells with a \`scope\` attribute for accessibility.
 
@@ -1030,7 +1030,7 @@ Use any subject you like — sales figures, a schedule, student grades, etc.
   {
     id: 'sample-html-accessible-form',
     title: 'Accessible Registration Form',
-    language: 'html',
+    languages: ['html'],
     difficulty: 'advanced',
     description: `Build an accessible user registration form using proper semantic HTML. Features like \`<fieldset>\`, \`<legend>\`, paired \`for\`/\`id\` attributes, and \`required\` make forms usable by everyone, including screen reader users.
 
@@ -1127,7 +1127,7 @@ Use any subject you like — sales figures, a schedule, student grades, etc.
   {
     id: 'sample-html-figure',
     title: 'Figures, Captions & Semantic Media',
-    language: 'html',
+    languages: ['html'],
     difficulty: 'advanced',
     description: `Use semantic HTML5 elements to mark up a media-rich page. The \`<figure>\` and \`<figcaption>\` elements provide meaningful context for images, and elements like \`<address>\` and \`<time>\` add machine-readable metadata.
 
@@ -1224,7 +1224,7 @@ Use any subject you like — sales figures, a schedule, student grades, etc.
   {
     id: 'sample-py-reverse',
     title: 'Reverse a String',
-    language: 'python',
+    languages: ['python'],
     difficulty: 'beginner',
     description: `Write a function \`reverse_string\` that takes a string and returns it reversed.
 
@@ -1289,7 +1289,7 @@ reverse_string("a")       # → "a"
   {
     id: 'sample-py-filter-even',
     title: 'Filter Even Numbers',
-    language: 'python',
+    languages: ['python'],
     difficulty: 'beginner',
     description: `Write a function \`filter_even\` that takes a list of integers and returns a new list containing only the even numbers, in the same order.
 
@@ -1355,7 +1355,7 @@ filter_even([])               # → []
   {
     id: 'sample-py-char-count',
     title: 'Count Character Occurrences',
-    language: 'python',
+    languages: ['python'],
     difficulty: 'intermediate',
     description: `Write a function \`char_count\` that takes a string and returns a dictionary mapping each character to the number of times it appears.
 
@@ -1420,7 +1420,7 @@ char_count("aaa")     # → {"a": 3}
   {
     id: 'sample-py-word-freq',
     title: 'Word Frequency Counter',
-    language: 'python',
+    languages: ['python'],
     difficulty: 'intermediate',
     description: `Write a function \`word_frequency\` that takes a sentence string and returns a dictionary mapping each word (lowercased) to the number of times it appears.
 
@@ -1487,7 +1487,7 @@ word_frequency("")                    # → {}
   {
     id: 'sample-py-caesar',
     title: 'Caesar Cipher',
-    language: 'python',
+    languages: ['python'],
     difficulty: 'advanced',
     description: `Write a function \`caesar_cipher\` that takes a string and a shift amount (integer) and returns the string with each alphabetic character shifted that many positions. Non-alphabetic characters pass through unchanged.
 
@@ -1553,7 +1553,7 @@ caesar_cipher("abc", -1)    # → "zab"   (negative shift)
   {
     id: 'sample-py-brackets',
     title: 'Balanced Brackets',
-    language: 'python',
+    languages: ['python'],
     difficulty: 'advanced',
     description: `Write a function \`is_balanced\` that returns \`True\` if every opening bracket in the string has a correctly matched closing bracket, \`False\` otherwise. Handle \`()\`, \`[]\`, and \`{}\`.
 
@@ -1621,7 +1621,7 @@ is_balanced("{")        # → False  (unclosed)
   {
     id: 'sample-add',
     title: 'Sum Two Numbers',
-    language: 'javascript',
+    languages: ['javascript'],
     difficulty: 'beginner',
     description: `Write a function \`add\` that takes two numbers and returns their sum.
 
@@ -1676,7 +1676,7 @@ exports.add = add;
   {
     id: 'sample-js-max',
     title: 'Find the Maximum Value',
-    language: 'javascript',
+    languages: ['javascript'],
     difficulty: 'beginner',
     description: `Write a function \`findMax\` that takes an array of numbers and returns the largest value. Return \`null\` if the array is empty.
 
@@ -1744,7 +1744,7 @@ exports.findMax = findMax;
   {
     id: 'sample-palindrome',
     title: 'Palindrome Check',
-    language: 'javascript',
+    languages: ['javascript'],
     difficulty: 'intermediate',
     description: `Write a function \`isPalindrome\` that returns \`true\` if the given string reads the same forwards and backwards, \`false\` otherwise.
 
@@ -1803,7 +1803,7 @@ exports.isPalindrome = isPalindrome;
   {
     id: 'sample-fizzbuzz',
     title: 'FizzBuzz',
-    language: 'javascript',
+    languages: ['javascript'],
     difficulty: 'intermediate',
     description: `Write a function \`fizzBuzz\` that takes a number \`n\` and returns an array of strings from 1 to n where:
 
@@ -1863,7 +1863,7 @@ exports.fizzBuzz = fizzBuzz;
   {
     id: 'sample-js-flatten',
     title: 'Flatten a Nested Array',
-    language: 'javascript',
+    languages: ['javascript'],
     difficulty: 'advanced',
     description: `Write a function \`flatten\` that takes a deeply nested array and returns a new flat array containing all values in order. The input may be nested to any depth.
 
@@ -1937,7 +1937,7 @@ exports.flatten = flatten;
   {
     id: 'sample-js-groupby',
     title: 'Group Array by Key',
-    language: 'javascript',
+    languages: ['javascript'],
     difficulty: 'advanced',
     description: `Write a function \`groupBy\` that takes an array of objects and a key name, and returns an object grouping the items by their value for that key.
 
@@ -2028,7 +2028,7 @@ exports.groupBy = groupBy;
   {
     id: 'sample-multistep-nav',
     title: 'Build a Styled Navigation',
-    language: 'css',
+    languages: ['html', 'css'],
     difficulty: 'intermediate',
     description: `Build a complete styled navigation bar in two steps. Start with the HTML structure, then add CSS styling.
 
@@ -2180,6 +2180,277 @@ nav a {
               return getComputedStyle(container.querySelector("nav a")).textDecorationLine === "none";
             `,
             failureMessage: 'Set text-decoration: none on nav a.',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'sample-multistep-toggle',
+    title: 'Build a Dark Mode Toggle',
+    languages: ['html', 'css', 'javascript'],
+    difficulty: 'advanced',
+    description: `Build an interactive dark mode toggle button in three steps — HTML structure, CSS styling, and JavaScript interactivity.
+
+Each step builds on the previous one. Your code carries forward between steps!`,
+    steps: [
+      {
+        id: 'sample-ms-toggle-step1',
+        title: 'Create the HTML Structure',
+        description: `Create the page structure with a toggle button and some content to theme.
+
+### Requirements
+
+1. A \`<button>\` with \`id="theme-toggle"\`
+2. A \`<div>\` with \`class="content"\` containing at least one \`<h1>\` and one \`<p>\`
+3. The \`<body>\` must have \`class="light"\` as the default theme
+
+### Tips
+
+- The button will be wired up to switch themes in a later step
+- The \`class="light"\` on \`<body>\` lets CSS target the current theme
+`,
+        language: 'html',
+        files: [
+          {
+            name: 'index.html',
+            language: 'html',
+            code: `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Dark Mode Toggle</title>
+  </head>
+  <body>
+
+    <!-- Add your toggle button and content here -->
+
+    <script src="app.js"></script>
+  </body>
+</html>
+`,
+            lockedLines: 0,
+          },
+        ],
+        tests: [
+          {
+            id: 'ms-toggle-t1',
+            description: 'Page has a <button> with id="theme-toggle"',
+            assertion: 'return document.querySelector("button#theme-toggle") !== null;',
+            failureMessage: 'Add a <button id="theme-toggle"> element.',
+          },
+          {
+            id: 'ms-toggle-t2',
+            description: 'Page has a .content div with an <h1> and a <p>',
+            assertion: `
+              const content = document.querySelector(".content");
+              return content !== null
+                && content.querySelector("h1") !== null
+                && content.querySelector("p") !== null;
+            `,
+            failureMessage: 'Add a <div class="content"> containing at least one <h1> and one <p>.',
+          },
+          {
+            id: 'ms-toggle-t3',
+            description: '<body> has class="light" as the default theme',
+            assertion: 'return document.body.classList.contains("light");',
+            failureMessage: 'Set class="light" on the <body> element as the default theme.',
+          },
+        ],
+      },
+      {
+        id: 'sample-ms-toggle-step2',
+        title: 'Style Both Themes',
+        description: `Add CSS for both light and dark themes using the class on \`<body>\`.
+
+### Requirements
+
+1. \`body.light\` must have a **light background** (lightness > 50%)
+2. \`body.dark\` must have a **dark background** (lightness < 50%)
+3. \`body.dark .content\` text must be **light colored** (lightness > 50%)
+4. \`#theme-toggle\` must have **rounded corners** and a **pointer cursor**
+
+### Tips
+
+- \`body.light { background: #ffffff; color: #111; }\`
+- \`body.dark { background: #1a1a2e; color: #eee; }\`
+- Use \`body.dark .content\` to target content in dark mode
+`,
+        language: 'css',
+        files: [
+          {
+            name: 'styles.css',
+            language: 'css',
+            code: `/* Light theme */
+body.light {
+
+}
+
+/* Dark theme */
+body.dark {
+
+}
+
+/* Dark theme content text */
+body.dark .content {
+
+}
+
+/* Toggle button */
+#theme-toggle {
+
+}
+`,
+            lockedLines: 0,
+          },
+        ],
+        tests: [
+          {
+            id: 'ms-toggle-t4',
+            description: 'body.light has a light background color',
+            assertion: `
+              container.ownerDocument.body.className = 'light';
+              container.className = 'light';
+              const bg = getComputedStyle(container).backgroundColor;
+              const match = bg.match(/\\d+/g);
+              if (!match) return false;
+              const [r, g, b] = match.map(Number);
+              const lightness = (Math.max(r, g, b) + Math.min(r, g, b)) / 2 / 255;
+              return lightness > 0.5;
+            `,
+            failureMessage: 'Give body.light a light background color (e.g., #ffffff or #f5f5f5).',
+          },
+          {
+            id: 'ms-toggle-t5',
+            description: 'body.dark has a dark background color',
+            assertion: `
+              container.className = 'dark';
+              const bg = getComputedStyle(container).backgroundColor;
+              const match = bg.match(/\\d+/g);
+              if (!match) return false;
+              const [r, g, b] = match.map(Number);
+              const lightness = (Math.max(r, g, b) + Math.min(r, g, b)) / 2 / 255;
+              return lightness < 0.5;
+            `,
+            failureMessage: 'Give body.dark a dark background color (e.g., #1a1a2e or #111).',
+          },
+          {
+            id: 'ms-toggle-t6',
+            description: 'body.dark .content has light-colored text',
+            assertion: `
+              container.className = 'dark';
+              const content = container.querySelector('.content');
+              if (!content) return false;
+              const color = getComputedStyle(content).color;
+              const match = color.match(/\\d+/g);
+              if (!match) return false;
+              const [r, g, b] = match.map(Number);
+              const lightness = (Math.max(r, g, b) + Math.min(r, g, b)) / 2 / 255;
+              return lightness > 0.5;
+            `,
+            failureMessage: 'Give body.dark .content a light text color (e.g., #eee or #f0f0f0).',
+          },
+          {
+            id: 'ms-toggle-t7',
+            description: '#theme-toggle has rounded corners and a pointer cursor',
+            assertion: `
+              const btn = container.querySelector('#theme-toggle');
+              if (!btn) return false;
+              const s = getComputedStyle(btn);
+              return parseFloat(s.borderRadius) > 0 && s.cursor === 'pointer';
+            `,
+            failureMessage: 'Give #theme-toggle a border-radius > 0 and cursor: pointer.',
+          },
+        ],
+      },
+      {
+        id: 'sample-ms-toggle-step3',
+        title: 'Add JavaScript Interactivity',
+        description: `Wire up the toggle button to switch between light and dark themes.
+
+### Requirements
+
+1. Clicking \`#theme-toggle\` must toggle \`<body>\` between \`class="light"\` and \`class="dark"\`
+2. The button text must update: show **"Dark Mode"** when the current theme is light, and **"Light Mode"** when dark
+3. Export the toggle function: \`exports.toggleTheme = ...\`
+
+### Tips
+
+- \`document.body.classList.contains("light")\` checks the current theme
+- \`document.body.className = "dark"\` switches the class
+- Use \`addEventListener("click", ...)\` on the button
+`,
+        language: 'javascript',
+        files: [
+          {
+            name: 'app.js',
+            language: 'javascript',
+            code: `// Toggle between light and dark themes
+function toggleTheme() {
+  // Your code here
+}
+
+// Set up the click listener
+const btn = document.getElementById('theme-toggle');
+if (btn) btn.addEventListener('click', toggleTheme);
+
+exports.toggleTheme = toggleTheme;
+`,
+            lockedLines: 2,
+          },
+        ],
+        tests: [
+          {
+            id: 'ms-toggle-t8',
+            description: 'toggleTheme switches body from "light" to "dark"',
+            assertion: `
+              document.body.className = 'light';
+              const btn = document.getElementById('theme-toggle');
+              if (btn) btn.textContent = 'Dark Mode';
+              exports.toggleTheme();
+              return document.body.classList.contains('dark');
+            `,
+            failureMessage: 'toggleTheme() should switch body class from "light" to "dark".',
+          },
+          {
+            id: 'ms-toggle-t9',
+            description: 'toggleTheme switches body from "dark" back to "light"',
+            assertion: `
+              document.body.className = 'dark';
+              const btn = document.getElementById('theme-toggle');
+              if (btn) btn.textContent = 'Light Mode';
+              exports.toggleTheme();
+              return document.body.classList.contains('light');
+            `,
+            failureMessage: 'toggleTheme() should switch body class from "dark" back to "light".',
+          },
+          {
+            id: 'ms-toggle-t10',
+            description: 'Button text updates to "Light Mode" when switching to dark',
+            assertion: `
+              document.body.className = 'light';
+              const btn = document.getElementById('theme-toggle');
+              if (!btn) return false;
+              btn.textContent = 'Dark Mode';
+              exports.toggleTheme();
+              return btn.textContent.trim() === 'Light Mode';
+            `,
+            failureMessage: 'When switching to dark mode, the button text should say "Light Mode".',
+          },
+          {
+            id: 'ms-toggle-t11',
+            description: 'Button text updates to "Dark Mode" when switching to light',
+            assertion: `
+              document.body.className = 'dark';
+              const btn = document.getElementById('theme-toggle');
+              if (!btn) return false;
+              btn.textContent = 'Light Mode';
+              exports.toggleTheme();
+              return btn.textContent.trim() === 'Dark Mode';
+            `,
+            failureMessage: 'When switching to light mode, the button text should say "Dark Mode".',
           },
         ],
       },

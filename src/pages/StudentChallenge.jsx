@@ -95,7 +95,7 @@ export default function StudentChallenge() {
     if (!challenge) return
     const needsPython = isMultiStep(challenge)
       ? challenge.steps.some(s => s.language?.toLowerCase() === 'python')
-      : challenge.language?.toLowerCase() === 'python'
+      : (challenge.languages || []).some(l => l.toLowerCase() === 'python')
 
     if (needsPython) {
       if (isPythonReady()) {
@@ -125,15 +125,15 @@ export default function StudentChallenge() {
   const totalSteps = multiStep ? challenge.steps.length : 0
 
   // For multi-step, determine executor language and tests from current step
-  const execLanguage = multiStep ? currentStep.language : challenge.language
+  const execLanguage = multiStep ? currentStep.language : (challenge.languages?.[0] || 'javascript')
   const currentTests = multiStep ? currentStep.tests : challenge.tests
 
   const hasPreview = multiStep
     ? Object.keys(files).some(name => /\.(html?|css|js)$/i.test(name))
-    : PREVIEWABLE.includes(challenge.language?.toLowerCase())
+    : (challenge.languages || []).some(l => PREVIEWABLE.includes(l.toLowerCase()))
   const isPython = multiStep
     ? challenge.steps.some(s => s.language?.toLowerCase() === 'python')
-    : challenge.language?.toLowerCase() === 'python'
+    : (challenge.languages || []).some(l => l.toLowerCase() === 'python')
 
   const visibleTabs = hasPreview ? TABS : TABS.filter(t => t !== 'preview')
 
@@ -247,9 +247,13 @@ export default function StudentChallenge() {
                 <h1 className="text-xl font-bold text-gray-900 dark:text-white leading-snug">
                   {challenge.title}
                 </h1>
-                <span className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-full font-medium ${langBadgeClass(challenge.language)}`}>
-                  {langDisplayName(challenge.language)}
-                </span>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {(challenge.languages || []).map(lang => (
+                    <span key={lang} className={`inline-block text-xs px-2 py-0.5 rounded-full font-medium ${langBadgeClass(lang)}`}>
+                      {langDisplayName(lang)}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -485,7 +489,7 @@ export default function StudentChallenge() {
               <div className={`absolute inset-0 ${activeTab === 'preview' ? 'block' : 'hidden'}`}>
                 <PreviewFrame
                   files={debouncedFiles}
-                  language={challenge.language}
+                  language={challenge.languages?.[0] || 'javascript'}
                   isStale={isPreviewStale}
                 />
               </div>

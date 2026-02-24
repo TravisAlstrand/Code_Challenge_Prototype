@@ -1,11 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { langBadgeClass } from '../utils/langBadge'
+import { langBadgeClass, langDisplayName } from '../utils/langBadge'
 import { difficultyBadgeClass, difficultyLabel } from '../utils/difficultyBadge'
 
 export default function ChallengeCard({ challenge, onDelete, onDuplicate, onReset, isCompleted = false, stepProgress = null }) {
   const navigate = useNavigate()
-
-  const badgeClass = langBadgeClass(challenge.language)
 
   const handleDelete = (e) => {
     e.stopPropagation()
@@ -42,10 +40,12 @@ export default function ChallengeCard({ challenge, onDelete, onDuplicate, onRese
             <h2 className="text-base font-semibold text-gray-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
               {challenge.title}
             </h2>
-            <div className="flex items-center gap-2 mt-1">
-              <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${badgeClass}`}>
-                {challenge.language}
-              </span>
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
+              {(challenge.languages || []).map(lang => (
+                <span key={lang} className={`text-xs font-medium px-2 py-0.5 rounded-full ${langBadgeClass(lang)}`}>
+                  {langDisplayName(lang)}
+                </span>
+              ))}
               {challenge.difficulty && (
                 <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${difficultyBadgeClass(challenge.difficulty)}`}>
                   {difficultyLabel(challenge.difficulty)}

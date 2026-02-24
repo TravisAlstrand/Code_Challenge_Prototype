@@ -26,7 +26,7 @@ ${indented}
 
 // Convert a legacy challenge (starterCode/fixtureHtml) to the files array format
 function convertToFiles(challenge) {
-  const lang = challenge.language || 'javascript'
+  const lang = challenge.languages?.[0] || challenge.language || 'javascript'
   const files = []
 
   if (lang === 'css') {
@@ -103,6 +103,16 @@ function migrate(challenges) {
     if (sample && sample.files && !patched.files) {
       patched.files = sample.files
     }
+
+    // Normalize language → languages array
+    if (!Array.isArray(patched.languages) || patched.languages.length === 0) {
+      if (typeof patched.language === 'string' && patched.language) {
+        patched.languages = [patched.language]
+      } else {
+        patched.languages = ['javascript']
+      }
+    }
+    delete patched.language
 
     return patched
   })

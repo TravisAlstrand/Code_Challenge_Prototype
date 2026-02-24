@@ -19,7 +19,7 @@ function emptyChallenge() {
   return {
     id: null,
     title: '',
-    language: 'javascript',
+    languages: ['javascript'],
     difficulty: 'beginner',
     description: '',
     files: [createDefaultFile('javascript')],
@@ -52,20 +52,34 @@ export default function AdminPage() {
     setSaveStatus('idle')
   }
 
-  // When language changes, swap files if still at defaults (single-step only)
-  const handleLanguageChange = (newLang) => {
-    if (isMulti) {
-      update('language', newLang)
-      return
-    }
+  // Toggle a language in the languages array
+  const handleLanguageToggle = (lang) => {
     setForm(prev => {
-      const isDefault = prev.files.length === 1
-        && DEFAULT_FILE_CODE[prev.language] === prev.files[0].code
-      return {
-        ...prev,
-        language: newLang,
-        files: isDefault ? [createDefaultFile(newLang)] : prev.files,
+      const current = prev.languages || []
+      const has = current.includes(lang)
+      let next
+
+      if (has) {
+        if (current.length <= 1) return prev // must keep at least one
+        next = current.filter(l => l !== lang)
+      } else {
+        next = [...current, lang]
       }
+
+      // For single-step: if files are still at defaults for old primary, swap to new primary
+      if (!isMulti) {
+        const oldPrimary = current[0]
+        const newPrimary = next[0]
+        if (oldPrimary !== newPrimary) {
+          const isDefault = prev.files.length === 1
+            && DEFAULT_FILE_CODE[oldPrimary] === prev.files[0].code
+          if (isDefault) {
+            return { ...prev, languages: next, files: [createDefaultFile(newPrimary)] }
+          }
+        }
+      }
+
+      return { ...prev, languages: next }
     })
     setSaveStatus('idle')
   }
@@ -85,7 +99,7 @@ export default function AdminPage() {
       id: uuidv4(),
       title: `Step ${form.steps.length + 1}`,
       description: '',
-      language: form.language,
+      language: form.languages?.[0] || 'javascript',
       files: [],
       tests: [],
     }
@@ -123,7 +137,7 @@ export default function AdminPage() {
         id: uuidv4(),
         title: 'Step 1',
         description: '',
-        language: prev.language,
+        language: prev.languages?.[0] || 'javascript',
         files: prev.files || [],
         tests: prev.tests || [],
       }],
@@ -142,7 +156,7 @@ export default function AdminPage() {
     const step = form.steps[0]
     setForm(prev => ({
       ...prev,
-      files: step.files.length > 0 ? step.files : [createDefaultFile(prev.language)],
+      files: step.files.length > 0 ? step.files : [createDefaultFile(prev.languages?.[0] || 'javascript')],
       tests: step.tests || [],
       steps: undefined,
     }))
@@ -153,7 +167,9 @@ export default function AdminPage() {
 
   const currentFiles = isMulti ? (form.steps[activeStepIndex]?.files || []) : (form.files || [])
   const currentTests = isMulti ? (form.steps[activeStepIndex]?.tests || []) : (form.tests || [])
-  const currentLang = isMulti ? (form.steps[activeStepIndex]?.language || form.language) : form.language
+  const currentLang = isMulti
+    ? (form.steps[activeStepIndex]?.language || form.languages?.[0] || 'javascript')
+    : (form.languages?.[0] || 'javascript')
 
   const setCurrentFiles = (newFiles) => {
     if (isMulti) {
@@ -300,17 +316,30 @@ export default function AdminPage() {
             />
           </Field>
 
-          <Field label={isMulti ? 'Language (display badge)' : 'Language'}>
-            <select
-              value={form.language}
-              onChange={e => handleLanguageChange(e.target.value)}
-              className={`${inputClass} w-auto`}
-            >
-              <option value="javascript">JavaScript</option>
-              <option value="html">HTML</option>
-              <option value="css">CSS</option>
-              <option value="python">Python</option>
-            </select>
+          <Field label={isMulti ? 'Languages (display badges)' : 'Languages'}>
+            <div className="flex flex-wrap gap-2">
+              {['javascript', 'html', 'css', 'python'].map(lang => {
+                const checked = (form.languages || []).includes(lang)
+                return (
+                  <label
+                    key={lang}
+                    className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full font-medium border cursor-pointer transition-colors ${
+                      checked
+                        ? `${langBadgeClass(lang)} border-transparent`
+                        : 'border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => handleLanguageToggle(lang)}
+                      className="sr-only"
+                    />
+                    {langDisplayName(lang)}
+                  </label>
+                )
+              })}
+            </div>
           </Field>
 
           <Field label="Difficulty">

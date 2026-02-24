@@ -16,7 +16,7 @@ export default function ChallengeList() {
 
   // Derive unique languages from the current challenge list, alphabetically
   const languages = useMemo(() => {
-    const unique = [...new Set(challenges.map(c => c.language?.toLowerCase()).filter(Boolean))]
+    const unique = [...new Set(challenges.flatMap(c => (c.languages || []).map(l => l.toLowerCase())))]
     return unique.sort()
   }, [challenges])
 
@@ -29,11 +29,11 @@ export default function ChallengeList() {
   // Sort by language → difficulty order → title; apply all active filters
   const visibleChallenges = useMemo(() => {
     let filtered = challenges
-    if (activeFilter !== 'all') filtered = filtered.filter(c => c.language?.toLowerCase() === activeFilter)
+    if (activeFilter !== 'all') filtered = filtered.filter(c => (c.languages || []).some(l => l.toLowerCase() === activeFilter))
     if (activeDifficultyFilter !== 'all') filtered = filtered.filter(c => c.difficulty?.toLowerCase() === activeDifficultyFilter)
     if (hideCompleted) filtered = filtered.filter(c => !isComplete(c.id))
     return [...filtered].sort((a, b) => {
-      const lang = (a.language ?? '').localeCompare(b.language ?? '')
+      const lang = (a.languages?.[0] ?? '').localeCompare(b.languages?.[0] ?? '')
       if (lang !== 0) return lang
       const diffA = DIFFICULTIES.indexOf(a.difficulty?.toLowerCase())
       const diffB = DIFFICULTIES.indexOf(b.difficulty?.toLowerCase())
@@ -63,7 +63,7 @@ export default function ChallengeList() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Challenges</h1>
           <div className="flex items-center gap-3 mt-1 flex-wrap">
             <p className="text-gray-500 dark:text-gray-400 text-sm">
-              {visibleChallenges.length} challenge{visibleChallenges.length !== 1 ? 's' : ''}{activeFilter !== 'all' ? ` in ${activeFilter}` : ' available'}
+              {visibleChallenges.length} challenge{visibleChallenges.length !== 1 ? 's' : ''}{activeFilter !== 'all' ? ` in ${langDisplayName(activeFilter)}` : ' available'}
               {completedCount > 0 && (
                 <span className="ml-2 text-green-600 dark:text-green-400 font-medium">
                   · {completedCount} completed
