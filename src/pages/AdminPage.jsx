@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 import useChallenges from '../hooks/useChallenges'
 import CodeEditor from '../components/CodeEditor'
 import TestItem from '../components/TestItem'
+import { DIFFICULTIES, difficultyLabel } from '../utils/difficultyBadge'
 
 const DEFAULT_STARTERS = {
   javascript: `// Do not rename this function
@@ -55,6 +56,7 @@ function emptyChallenge() {
     id: null,
     title: '',
     language: 'javascript',
+    difficulty: 'beginner',
     description: '',
     starterCode: DEFAULT_STARTERS.javascript,
     fixtureHtml: '',
@@ -185,6 +187,18 @@ export default function AdminPage() {
               <option value="html">HTML</option>
               <option value="css">CSS</option>
               <option value="python">Python</option>
+            </select>
+          </Field>
+
+          <Field label="Difficulty">
+            <select
+              value={form.difficulty ?? 'beginner'}
+              onChange={e => update('difficulty', e.target.value)}
+              className={`${inputClass} w-auto`}
+            >
+              {DIFFICULTIES.map(d => (
+                <option key={d} value={d}>{difficultyLabel(d)}</option>
+              ))}
             </select>
           </Field>
         </Section>

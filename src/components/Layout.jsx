@@ -34,12 +34,6 @@ export default function Layout({ children }) {
             </Link>
 
             <div className="flex items-center gap-3">
-              <Link
-                to="/admin"
-                className="text-sm font-medium px-4 py-2 rounded-lg text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-              >
-                + New Challenge
-              </Link>
               <button
                 onClick={toggleDarkMode}
                 className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"

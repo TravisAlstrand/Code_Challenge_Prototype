@@ -1,21 +1,23 @@
 import { useMemo } from 'react'
 import { marked } from 'marked'
 
+const COLLAPSIBLE_HEADINGS = new Set(['tips', 'expected structure'])
+
 /**
- * Finds every <h3>Tips</h3> in the generated HTML and replaces it with a
- * <details> element (closed by default).  All sibling nodes that follow the
- * heading — up to the next heading of any level — become the collapsible body.
+ * Finds every <h3> whose text matches a collapsible section name and replaces
+ * it with a <details> element (closed by default).  All sibling nodes that
+ * follow the heading — up to the next heading of any level — become the body.
  */
 function wrapTipSections(html) {
   const doc = new DOMParser().parseFromString(`<div>${html}</div>`, 'text/html')
   const root = doc.body.firstChild
 
   root.querySelectorAll('h3').forEach(h3 => {
-    if (h3.textContent.trim().toLowerCase() !== 'tips') return
+    if (!COLLAPSIBLE_HEADINGS.has(h3.textContent.trim().toLowerCase())) return
 
     const details = doc.createElement('details')
     const summary = doc.createElement('summary')
-    summary.textContent = 'Tips'
+    summary.textContent = h3.textContent.trim()
     details.appendChild(summary)
 
     const body = doc.createElement('div')

@@ -2,8 +2,26 @@ import { v4 as uuidv4 } from 'uuid'
 import useLocalStorage from './useLocalStorage'
 import { sampleChallenges } from '../data/sampleChallenges'
 
+// Index sample challenges by id for fast lookup
+const sampleById = Object.fromEntries(sampleChallenges.map(c => [c.id, c]))
+
+// Backfill any fields that were added to sample challenges after the initial
+// localStorage write (e.g. difficulty). User-created challenges are untouched.
+function migrate(challenges) {
+  return challenges.map(c => {
+    const sample = sampleById[c.id]
+    if (!sample) return c
+    const patched = { ...c }
+    if (patched.difficulty == null && sample.difficulty != null) patched.difficulty = sample.difficulty
+    return patched
+  })
+}
+
 export default function useChallenges() {
   const [challenges, setChallenges] = useLocalStorage('challenges', sampleChallenges)
+
+  // Apply migration on every render (idempotent — only changes stale entries)
+  const migratedChallenges = migrate(challenges)
 
   /**
    * Save (create or update) a challenge.
@@ -25,7 +43,7 @@ export default function useChallenges() {
   }
 
   const duplicateChallenge = (id) => {
-    const original = challenges.find(c => c.id === id)
+    const original = migratedChallenges.find(c => c.id === id)
     if (!original) return
     const copy = {
       ...original,
@@ -37,10 +55,10 @@ export default function useChallenges() {
     return copy
   }
 
-  const getChallengeById = (id) => challenges.find(c => c.id === id)
+  const getChallengeById = (id) => migratedChallenges.find(c => c.id === id)
 
   const exportChallenges = () => {
-    const json = JSON.stringify(challenges, null, 2)
+    const json = JSON.stringify(migratedChallenges, null, 2)
     const blob = new Blob([json], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -75,7 +93,7 @@ export default function useChallenges() {
   }
 
   return {
-    challenges,
+    challenges: migratedChallenges,
     saveChallenge,
     deleteChallenge,
     duplicateChallenge,

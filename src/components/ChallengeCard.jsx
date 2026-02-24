@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { langBadgeClass } from '../utils/langBadge'
+import { difficultyBadgeClass, difficultyLabel } from '../utils/difficultyBadge'
 
 export default function ChallengeCard({ challenge, onDelete, onDuplicate, onReset, isCompleted = false }) {
   const navigate = useNavigate()
@@ -45,6 +46,11 @@ export default function ChallengeCard({ challenge, onDelete, onDuplicate, onRese
               <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${badgeClass}`}>
                 {challenge.language}
               </span>
+              {challenge.difficulty && (
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${difficultyBadgeClass(challenge.difficulty)}`}>
+                  {difficultyLabel(challenge.difficulty)}
+                </span>
+              )}
               <span className="text-xs text-gray-400 dark:text-gray-500">
                 {challenge.tests?.length ?? 0} test{challenge.tests?.length !== 1 ? 's' : ''}
               </span>
